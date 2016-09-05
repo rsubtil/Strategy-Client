@@ -1,0 +1,12 @@
+Material My Material : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {
+        DiffuseMap : Flip Textures/T_Arvore_UVMap.png
+        UseMaterialColors : false
+     }
+    AdditionalRenderState {
+      Wireframe Off
+      DepthWrite On
+      FaceCull Back
+      PointSprite Off
+    }
+}

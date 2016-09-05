@@ -1,0 +1,11 @@
+Material My Material : Common/MatDefs/Misc/Particle.j3md {
+     MaterialParameters {
+        GlowMap : Flip Textures/Particles/leaf.png
+        GlowColor : 1 1 1 1
+        Texture : Flip Textures/Particles/leaf.png
+     }
+    AdditionalRenderState {
+      ColorWrite Off
+      DepthWrite On
+    }
+}

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<nifty xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://nifty-gui.lessvoid.com/nifty-gui" xsi:schemaLocation="https://raw.githubusercontent.com/void256/nifty-gui/1.4/nifty-core/src/main/resources/nifty.xsd https://raw.githubusercontent.com/void256/nifty-gui/1.4/nifty-core/src/main/resources/nifty.xsd">
+    <useControls filename="nifty-default-controls.xml"/>
+    <useStyles filename="nifty-default-styles.xml"/>
+    <screen id="start" controller="appstates.MenuAppState">
+        <layer id="gui" childLayout="vertical" backgroundColor="#000a">
+            <panel id="title" childLayout="center" width="100%" style="" height="20%">
+                <control name="label" id="titleLabel" textVAlign="center" width="100%" style="" text="Strategy" font="Interface/Fonts/Title.fnt" height="100%"/>
+            </panel>
+            <panel id="play" childLayout="center" width="100%" style="" height="50%">
+                <control name="button" id="playButton" childLayout="center" valign="center" label="Play">
+                    <interact onClick="gotoLogin()" />
+                </control>
+            </panel>
+            <panel id="others" childLayout="horizontal" width="100%" style="" height="20%">
+                <panel id="emptySpace1" childLayout="center" width="20%" style="" height="100%"/>
+                <panel id="help" childLayout="center" width="20%" style="" height="100%">
+                    <control name="button" id="helpButton" childLayout="center" label="Help"/>
+                </panel>
+                <panel id="options" childLayout="center" width="20%" style="" height="100%">
+                    <control name="button" id="optionsButton" childLayout="center" style="nifty-button" valign="center" label="Options" font="Interface/Fonts/Title.fnt"/>
+                </panel>
+                <panel id="exit" childLayout="center" width="20%" style="" height="100%">
+                    <control name="button" id="exitButton" childLayout="center" valign="center" label="Exit">
+                        <interact onClick="endGame()" />
+                    </control>
+                </panel>
+                <panel id="emptySpace2" childLayout="center" width="20%" style="" height="100%"/>
+            </panel>
+            <panel id="copyright" childLayout="center" width="100%" style="" height="10%">
+                <control name="label" id="copyrightLabel" width="100%" style="" text="Copyright 2015 GODE. GODE provides software only. Use of GODE's software is subject to our Terms of Services and Privacy Policy." wrap="true" font="aurulent-sans-16.fnt" height="100%"/>
+            </panel>
+        </layer>
+    </screen>
+    <screen id="login" controller="appstates.MenuAppState">
+        <layer id="background" childLayout="center" backgroundColor="#000a">
+            <panel id="loginPanel" childLayout="vertical" width="35%" style="nifty-panel-simple" height="60%">
+                <panel id="loginLabel" childLayout="center" width="100%" height="10%">
+                    <control name="label" id="loginText" text="Login"/>
+                </panel>
+                <panel id="emptySpace1" childLayout="center" width="100%" height="20%"/>
+                <panel id="username" childLayout="horizontal" width="100%" height="10%">
+                    <panel id="usernameLabel" childLayout="center" width="40%" height="100%">
+                        <control name="label" id="usernameText" text="Username: "/>
+                    </panel>
+                    <panel id="usernameField" childLayout="center" width="60%" height="100%">
+                        <control name="textfield" id="usernameTextField" maxLength="15"/>
+                    </panel>
+                </panel>
+                <panel id="password" childLayout="horizontal" width="100%" height="10%">
+                    <panel id="passwordLabel" childLayout="center" width="40%" height="100%">
+                        <control name="label" id="passwordText" text="Password: "/>
+                    </panel>
+                    <panel id="passwordField" childLayout="center" width="60%" height="100%">
+                        <control name="textfield" id="passwordTextField" passwordChar="*" maxLength="15"/>
+                    </panel>
+                </panel>
+                <panel id="emptySpace2" childLayout="center" width="100%" height="40%"/>
+                <panel id="buttons" childLayout="horizontal" width="100%" height="10%">
+                    <panel id="login" childLayout="center" width="50%" height="100%">
+                        <control name="button" id="loginButton" label="Login">
+                            <interact onClick="login()" />
+                        </control>
+                    </panel>
+                    <panel id="leave" childLayout="center" width="50%" height="100%">
+                        <control name="button" id="cancelButton" label="Cancel">
+                            <interact onClick="cancelLogin()" />
+                        </control>
+                    </panel>
+                </panel>
+            </panel>
+        </layer>
+    </screen>
+    <screen id="loginWait">
+        <layer id="background" childLayout="center" backgroundColor="#000a">
+            <control name="label" id="waitLabel" text="Please wait..."/>
+        </layer>
+    </screen>
+    <screen id="loginSuccessful" controller="appstates.MenuAppState">
+        <layer id="background" childLayout="vertical" backgroundColor="#000a">
+            <panel id="emptySpace1" childLayout="center" width="100%" height="45%"/>
+            <panel id="info" childLayout="vertical" width="100%" height="10%">
+                <control name="label" id="loginLabel" text="Login successful!"/>
+                <control name="button" id="loginButton" label="Play" align="center">
+                    <interact onClick="startGame()" />
+                </control>
+            </panel>
+            <panel id="emptySpace2" childLayout="center" width="100%" height="45%"/>
+        </layer>
+    </screen>
+    <screen id="loginFailed" controller="appstates.MenuAppState">
+        <layer id="background" childLayout="vertical" backgroundColor="#000a">
+            <panel id="emptySpace1" childLayout="center" width="100%" height="45%"/>
+            <panel id="info" childLayout="vertical" width="100%" height="10%">
+                <control name="label" id="loginLabel" width="100%" wrap="true" text=""/>
+                <control name="button" id="loginButton" label="Go back" align="center">
+                    <interact onClick="gotoLogin()" />
+                </control>
+            </panel>
+            <panel id="emptySpace2" childLayout="center" width="100%" height="45%"/>
+        </layer>
+    </screen>
+    <screen id="hud" controller="appstates.MenuAppState">
+        <layer id="background" childLayout="vertical"> 
+            <panel id="stats" childLayout="horizontal" width="100%" height = "10%" backgroundColor="#f00a" />
+            <panel id="window" childLayout="horizontal" width="100%" height = "50%" backgroundColor="#0f0a" />
+            <panel id="tabs" childLayout="horizontal" width="100%" height = "10%" backgroundColor="#00fa" />
+            <panel id="units" childLayout="horizontal" width="100%" height = "30%" backgroundColor="#ff0a" />
+        </layer>
+    </screen>
+</nifty>
