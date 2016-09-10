@@ -37,7 +37,7 @@ import units.Cannon;
 import units.Mortar;
 import units.Sniper;
 
-public class GameplayAppState extends AbstractAppState implements MessageListener<Client>{
+public class GameplayAppState extends AbstractAppState {
     
     // Variables
     // Essential
@@ -53,8 +53,8 @@ public class GameplayAppState extends AbstractAppState implements MessageListene
     // Sky
     private SkyControl skyControl;
     
-    // TODO: Implement networking behaviour on another appstate
-    private Client client;
+    // Network
+    private NetworkAppState networkAppState;
     
     // Board
     private Board board;
@@ -75,6 +75,7 @@ public class GameplayAppState extends AbstractAppState implements MessageListene
     
 @Override
     public void initialize(AppStateManager stateManager, Application app) {
+        // Initializes essential variables
         this.app = (SimpleApplication)app;
         this.stateManager = stateManager;
         this.assetManager = this.app.getAssetManager();
@@ -84,14 +85,7 @@ public class GameplayAppState extends AbstractAppState implements MessageListene
         this.flyCam = this.app.getFlyByCamera();
         this.inputManager = this.app.getInputManager();
         
-        try {
-            client = Network.connectToServer("localhost", 1000);
-            client.start();
-            client.addMessageListener(this);
-        } catch(IOException ioe) {
-            ioe.printStackTrace();
-        }
-        
+        // Loads board and debug units
         board = new PlainsBoard("B_Plains", assetManager, rootNode, viewPort);
         sniper = new Sniper(0, 0, assetManager.loadModel("Models/U_Sniper.j3o"));
         rootNode.attachChild(sniper.getUnitNode());
@@ -100,10 +94,16 @@ public class GameplayAppState extends AbstractAppState implements MessageListene
         rootNode.attachChild(mortar.getUnitNode());
         rootNode.attachChild(cannon.getUnitNode());
         
+        // Loads sky
         skyControl = new SkyControl(assetManager, cam, rootNode, viewPort, stateManager);
         skyControl.turnOn();
         rootNode.addControl(skyControl);
+        
+        // Changes camera's velocity
         flyCam.setMoveSpeed(25);
+        
+        // Add inputs
+        inputManager.deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
         
         inputManager.addMapping("Wireframe", new KeyTrigger(KeyInput.KEY_F));
         inputManager.addMapping("Print Screen", new KeyTrigger(KeyInput.KEY_O));
@@ -113,25 +113,28 @@ public class GameplayAppState extends AbstractAppState implements MessageListene
         inputManager.addMapping("CreateBoard1", new KeyTrigger(KeyInput.KEY_K));
         inputManager.addMapping("CreateBoard8", new KeyTrigger(KeyInput.KEY_L));
         inputManager.addMapping("Aerial Cam", new KeyTrigger(KeyInput.KEY_T));
+        inputManager.addMapping("PauseMenu", new KeyTrigger(KeyInput.KEY_ESCAPE));
         
-        inputManager.addListener(actionListener, "Wireframe", "Print Screen", "Anim1", "Anim2", "Anim3", "EntrarServer", "CreateBoard1", "Aerial Cam");
+        inputManager.addListener(actionListener, "Wireframe", "Print Screen", "Anim1", "Anim2", "Anim3", "EntrarServer", "CreateBoard1", "Aerial Cam", "Pause Menu");
         inputManager.addListener(analogListener, "CreateBoard8");
         
-        // Disables the Esc key and binds it to the GUI
-        // TODO: Add it to the inputs above, to make it cleaner
-        inputManager.deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
-        inputManager.addMapping("PauseMenu", new KeyTrigger(KeyInput.KEY_ESCAPE));
-        inputManager.addListener(actionListener, "PauseMenu");
-        
+        // Hides debug stats
         this.app.setDisplayStatView(false);
         
+        // Sets camera's position and rotation
         cam.setLocation(new Vector3f(0, 28, 39));
         cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
         
+        // Adds Print Screen functionality
         printScreen = new ScreenshotAppState("screenshots\\");
         stateManager.attach(printScreen);
         
-        menuAppState = new MenuAppState(this);
+        // Starts network
+        networkAppState = new NetworkAppState(this);
+        stateManager.attach(networkAppState);
+        
+        // Adds GUI
+        menuAppState = new MenuAppState(networkAppState);
         stateManager.attach(menuAppState);
         
         // Continues to initialize
@@ -202,45 +205,7 @@ public class GameplayAppState extends AbstractAppState implements MessageListene
         }
     };
     
-    public void loginIntoServer(String username, String password) {
-        // Made it final to use it in the enqueue method.
-        final LoginAttemptMessage login = new LoginAttemptMessage(username, Encryptor.encrypt(password));
-        if(client == null) {
-            // Enqueues the connection methods to another thread to
-            // not lock the main game loop.
-            app.enqueue(new Callable<Object>() {
-
-                public Object call() throws Exception {
-                    try {
-                        client = Network.connectToServer("localhost", 1000);
-                        client.start();
-                        client.addMessageListener(GameplayAppState.this);
-                        Thread.sleep(100);
-                        client.send(login);
-                    } catch(ConnectException ce) { // 
-                        menuAppState.loginResult(4);
-                    } catch(IOException ioe) {
-                        ioe.printStackTrace();
-                    }
-                        return null;
-                }
-            });           
-        } else {
-            try {
-                client.send(login);
-            } catch(IllegalStateException ise) {
-                client = null;
-                loginIntoServer(username, password);
-            }
-        }
-    }
     
-    public void messageReceived(Client source, Message message) {
-        if(message instanceof LoginResultMessage) {
-            LoginResultMessage loginResult = (LoginResultMessage)message;
-            menuAppState.loginResult(loginResult.getResult());
-        }
-    }
     
     public void wireframe(Spatial spatial, boolean wire) {
         if(spatial instanceof Node) {
@@ -255,12 +220,7 @@ public class GameplayAppState extends AbstractAppState implements MessageListene
 
     @Override
     public void cleanup() {
-        try {
-            client.close();
-        } catch(Exception e) {
-            System.out.println("Weird exception!");
-            e.printStackTrace();
-        }
+        // Stops the application
         app.stop();
         
         // Continues to cleanup

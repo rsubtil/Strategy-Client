@@ -23,21 +23,24 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     // Application
     private SimpleApplication app;
     private AppStateManager stateManager;
-    private GameplayAppState gameplayAppState;
+    private final NetworkAppState networkAppState;
+    
     // App's variables
     private AssetManager assetManager;
     private InputManager inputManager;
     private AudioRenderer audioRenderer;
     private ViewPort guiViewPort;
+    
     // GUI
     private NiftyJmeDisplay niftyJME;
     private Nifty nifty;
+    
     // GUI variables
     private boolean isLoginServerDown;
     private String errorMessage; // Used because I can't change Nifty text before it changes
     
-    public MenuAppState(GameplayAppState gameplayAppState) {
-        this.gameplayAppState = gameplayAppState;
+    public MenuAppState(NetworkAppState networkAppState) {
+        this.networkAppState = networkAppState;
     }
     
     @Override
@@ -81,7 +84,7 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         if(nifty.getCurrentScreen().getScreenId().equals("loginFailed")) {
             Label loginLabel = nifty.getCurrentScreen().findElementById("loginLabel").getNiftyControl(Label.class);
             loginLabel.setText("Login failed for the following reason(s): "  + errorMessage);
-            loginLabel.getElement().getRenderer(TextRenderer.class).setText("Login failed for the following reason(s): "  + errorMessage);
+            //loginLabel.getElement().getRenderer(TextRenderer.class).setText("Login failed for the following reason(s): "  + errorMessage);
         }
     }
     
@@ -128,7 +131,7 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         // Prevents sending null Strings
         if(!(usernameString.isEmpty() || passwordString.isEmpty())) {
             nifty.gotoScreen("loginWait");
-            gameplayAppState.loginIntoServer(usernameString, passwordString);
+            networkAppState.loginIntoServer(usernameString, passwordString);
         }
     }
 
