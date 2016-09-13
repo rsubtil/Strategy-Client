@@ -13,6 +13,8 @@ import encryption.Encryptor;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.concurrent.Callable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import messages.login.LoginAttemptMessage;
 import messages.login.LoginResultMessage;
 
@@ -75,8 +77,14 @@ public class NetworkAppState extends AbstractAppState implements MessageListener
         client.addMessageListener(this);
         client.addClientStateListener(this);
         long startMillis = System.currentTimeMillis();
-        while (!client.isConnected()) {
+        try {
+            /*while (!isConnected) {
             // Waits for client to fully connect to prevent serialization problems
+            }*/
+            // DEBUG
+            Thread.sleep(100);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(NetworkAppState.class.getName()).log(Level.SEVERE, null, ex);
         }
         System.out.println("Connection took " + (System.currentTimeMillis() - startMillis) + " milliseconds to start");
     }

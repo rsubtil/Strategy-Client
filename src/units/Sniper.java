@@ -4,6 +4,8 @@ import com.jme3.animation.AnimControl;
 import com.jme3.animation.SkeletonControl;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import util.Fields;
 import util.Methods;
 
@@ -36,6 +38,7 @@ public class Sniper extends Unit {
         unitNode.move(x, 0, z);
         animControl = ((Node)model).getChild("Model").getControl(AnimControl.class);
         animChannel = animControl.createChannel();
+        Logger.getLogger(Sniper.class.getName()).log(Level.FINEST, "lol");
         //TODO: Using software skinning because hardware skinning breaks the model. Fix that later.
         SkeletonControl sc = ((Node)model).getChild("Model").getControl(SkeletonControl.class);
         sc.setHardwareSkinningPreferred(false);

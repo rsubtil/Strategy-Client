@@ -14,25 +14,15 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.network.Client;
-import com.jme3.network.Message;
-import com.jme3.network.MessageListener;
-import com.jme3.network.Network;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.system.AppSettings;
 import controls.SkyControl;
-import encryption.Encryptor;
-import java.io.IOException;
-import java.net.ConnectException;
-import java.util.concurrent.Callable;
-import messages.login.LoginAttemptMessage;
-import messages.login.LoginResultMessage;
 import units.Cannon;
 import units.Mortar;
 import units.Sniper;
@@ -49,6 +39,8 @@ public class GameplayAppState extends AbstractAppState {
     private Camera cam;
     private FlyByCamera flyCam;
     private InputManager inputManager;
+    public final int WIDTH;
+    public final int HEIGHT;
     
     // Sky
     private SkyControl skyControl;
@@ -72,6 +64,11 @@ public class GameplayAppState extends AbstractAppState {
     private boolean isAerialView = false;
     private Vector3f camOriginalPos;
     private Quaternion camOriginalDir;
+    
+    public GameplayAppState(AppSettings settings) {
+        this.WIDTH = settings.getWidth();
+        this.HEIGHT = settings.getHeight();
+    }
     
 @Override
     public void initialize(AppStateManager stateManager, Application app) {
@@ -134,14 +131,15 @@ public class GameplayAppState extends AbstractAppState {
         stateManager.attach(networkAppState);
         
         // Adds GUI
-        menuAppState = new MenuAppState(networkAppState);
+        menuAppState = new MenuAppState(networkAppState, WIDTH, HEIGHT);
         stateManager.attach(menuAppState);
         
         // Continues to initialize
         super.initialize(stateManager, app);
         
-        // DEBUG: Rotate the mortar
+        // DEBUG:
         mortarN = mortar.getRotaryModel();
+        System.out.println(board.getMapSeed());
     }
 
     @Override

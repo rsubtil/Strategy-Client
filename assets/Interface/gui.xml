@@ -101,11 +101,37 @@
         </layer>
     </screen>
     <screen id="hud" controller="appstates.MenuAppState">
-        <layer id="background" childLayout="vertical"> 
-            <panel id="stats" childLayout="horizontal" width="100%" height = "10%" backgroundImage="Interface/border.png" />
-            <panel id="window" childLayout="horizontal" width="100%" height = "55%" />
-            <panel id="tabs" childLayout="horizontal" width="100%" height = "10%" backgroundImage="Interface/border.png" />
-            <panel id="units" childLayout="horizontal" width="100%" height = "25%" backgroundImage="Interface/border.png" />
+        <layer id="GLayer5" childLayout="vertical">
+            <panel id="stats" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="10%"/>
+            <panel id="window" childLayout="horizontal" width="100%" height="55%"/>
+            <panel id="tabs" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="10%">
+                <panel id="tab_units" childLayout="center" width="33%" height="100%">
+                    <control name="button" id="units_button" label="Units" align="center"/>
+                </panel>
+                <panel id="tab_shields" childLayout="center" width="33%" height="100%">
+                    <control name="button" id="shields_button" label="Shields" align="center"/>
+                </panel>
+                <panel id="tab_powerups" childLayout="center" width="33%" height="100%">
+                    <control name="button" id="powerups_button" label="Power-ups" align="center"/>
+                </panel>
+            </panel>
+            <panel id="units" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="25%">
+                <panel id="left_arrow" childLayout="center" width="5%" height="100%" backgroundColor="#000a">
+                    <image width="64" height="64" filename="Interface/arrow_left.png" />
+                </panel>
+                <panel id="units_selector" childLayout="horizontal" width="90%" height="100%" backgroundColor="#000a">
+                    <panel id="space1" childLayour="center" width="54" height="100%"/>
+                    <panel id="selection1" childLayour="center" width="120" height="100%" style="nifty-panel-simple"/>
+                    <panel id="space2" childLayour="center" width="54" height="100%"/>
+                    <panel id="selection2" childLayour="center" width="120" height="100%" style="nifty-panel-simple"/>
+                    <panel id="space3" childLayour="center" width="54" height="100%"/>
+                    <panel id="selection3" childLayour="center" width="120" height="100%" style="nifty-panel-simple"/>
+                    <panel id="space4" childLayour="center" width="54" height="100%"/>
+                </panel>
+                <panel id="right_arrow" childLayout="center" width="5%" height="100%" backgroundColor="#000a">
+                    <image width="64" height="64" filename="Interface/arrow_right.png" />
+                </panel>
+            </panel>
         </layer>
     </screen>
 </nifty>

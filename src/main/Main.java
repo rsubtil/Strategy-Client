@@ -13,7 +13,7 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        GameplayAppState gameplayAppState = new GameplayAppState();
+        GameplayAppState gameplayAppState = new GameplayAppState(settings);
         stateManager.attach(gameplayAppState);
     }
     

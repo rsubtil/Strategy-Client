@@ -13,9 +13,10 @@ import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.controls.Label;
 import de.lessvoid.nifty.controls.TextField;
 import de.lessvoid.nifty.elements.Element;
-import de.lessvoid.nifty.elements.render.TextRenderer;
 import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
+import de.lessvoid.nifty.tools.SizeValue;
+import de.lessvoid.nifty.tools.SizeValueType;
 
 public class MenuAppState extends AbstractAppState implements ScreenController {
     
@@ -24,6 +25,8 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     private SimpleApplication app;
     private AppStateManager stateManager;
     private final NetworkAppState networkAppState;
+    public final int WIDTH;
+    public final int HEIGHT;
     
     // App's variables
     private AssetManager assetManager;
@@ -39,8 +42,10 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     private boolean isLoginServerDown;
     private String errorMessage; // Used because I can't change Nifty text before it changes
     
-    public MenuAppState(NetworkAppState networkAppState) {
+    public MenuAppState(NetworkAppState networkAppState, int WIDTH, int HEIGHT) {
         this.networkAppState = networkAppState;
+        this.WIDTH = WIDTH;
+        this.HEIGHT = HEIGHT;
     }
     
     @Override
@@ -56,7 +61,11 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         this.niftyJME = new NiftyJmeDisplay(assetManager, inputManager, audioRenderer, guiViewPort);
         this.nifty = this.niftyJME.getNifty();
         this.nifty.registerScreenController(this);
-        this.nifty.fromXml("Interface/gui.xml", "start");
+        // DEBUG: Start already on "hud" to skip login server need
+        this.nifty.fromXml("Interface/gui.xml", "hud");
+        //this.nifty.fromXml("Interface/gui.xml", "start");
+        inputManager.setCursorVisible(true);
+        this.app.getFlyByCamera().setEnabled(true);
         //this.loginPopup = this.nifty.createPopup("login");
         try {
             nifty.validateXml("Interface/gui.xml");
@@ -68,8 +77,8 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         this.app.getGuiViewPort().addProcessor(niftyJME);
         
         // Enalbes the mouse and disable's the flyCam
-        inputManager.setCursorVisible(true);
-        this.app.getFlyByCamera().setEnabled(false);
+        //inputManager.setCursorVisible(true);
+        //this.app.getFlyByCamera().setEnabled(false);
         
         // Continues to initialize
         super.initialize(stateManager, app);
@@ -95,7 +104,21 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     
     @Override
     public void onStartScreen() {
-        
+        if(nifty.getCurrentScreen().getScreenId().equals("hud")) {
+            long widthPanels = Math.round(HEIGHT * 0.25);
+            long widthSpace = Math.round((WIDTH * 0.9 - (3*widthPanels))/4);
+            
+            // Resize panels according to screen resolution
+            for(int i = 1; i <= 3; i++) {
+                //nifty.getCurrentScreen().findElementById("selection" + i).setWidth((int)widthPanels);
+                nifty.getCurrentScreen().findElementById("selection" + i).setConstraintWidth(new SizeValue((int)widthPanels, SizeValueType.Pixel));
+            }
+            
+            for(int i = 1; i <= 4; i++) {
+                nifty.getCurrentScreen().findElementById("space" + i).setConstraintWidth(new SizeValue((int)widthSpace, SizeValueType.Pixel));
+            }
+            nifty.getCurrentScreen().layoutLayers();
+        }
     }
     
     @Override

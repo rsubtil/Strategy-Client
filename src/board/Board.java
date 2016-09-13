@@ -2,8 +2,6 @@ package board;
 
 import squares.Tree;
 import squares.Square;
-import squares.Hole;
-import squares.Lake;
 import squares.Grass;
 import squares.Rock;
 import com.jme3.asset.AssetManager;
@@ -16,10 +14,13 @@ import com.jme3.scene.Spatial;
 import com.jme3.water.SimpleWaterProcessor;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Random;
+import squares.Hole;
+import squares.Lake;
 import util.Methods;
 
 /*
- * public class Tabuleiro
+ * public class Board
  * 
  *          \/
  * 
@@ -32,23 +33,23 @@ public class Board {
     
     // VARIABLES
     // Board
-    private Node boardNode; // Internal Node to control the board more easily
-    private String boardDir; // String used for directory of model and other things
+    private final Node boardNode; // Internal Node to control the board more easily
+    private final String boardDir; // String used for directory of model and other things
     
     // Squares
-    private Node squaresNode; // Internal Node to manage the squares more easily
-    private BatchNode grassNode;
-    private BatchNode rockNode;
-    private BatchNode holeNode;
-    private BatchNode lakeNode;
-    private BatchNode waterNode;
-    private BatchNode treeNode;
-    private BatchNode brokenRockNode;
-    private BatchNode brokenTreeNode;
+    private final Node squaresNode; // Internal Node to manage the squares more easily
+    private final BatchNode grassNode;
+    private final BatchNode rockNode;
+    private final BatchNode holeNode;
+    private final BatchNode lakeNode;
+    private final BatchNode waterNode;
+    private final BatchNode treeNode;
+    private final BatchNode brokenRockNode;
+    private final BatchNode brokenTreeNode;
     
     // Water
-    private SimpleWaterProcessor water; // Processor to add "nice" water to the lakes
-    private ViewPort viewPort; // For internal use with the processor
+    private final SimpleWaterProcessor water; // Processor to add "nice" water to the lakes
+    private final ViewPort viewPort; // For internal use with the processor
     
     // Arrays
     // TODO: Organize the square's sides, giving it name or color, not number 1 and 2
@@ -56,7 +57,9 @@ public class Board {
     private Square[][] squares2; // Array of right squares
     
     // Misc
-    private AssetManager assetManager; // To load models
+    private final AssetManager assetManager; // To load models
+    private Random random;
+    private long seed;
     
     public Board(String boardDir, AssetManager assetManager, Node rootNode, ViewPort viewPort) {
         // Init the variables needed
@@ -114,7 +117,6 @@ public class Board {
         }
         // DEBUG : System.out.println("Depois de " + count + " criações, houve um válido.");
     }
-    
     // Methods
     // Method to return a square, used later to change terrain
     public Square getSquare(int x, int z) {
@@ -140,8 +142,19 @@ public class Board {
         }
     }
     
-    // Crerates a board
     private void createBoard() {
+        this.createBoard(-1);
+    }
+    
+    // Creates a board with a seed
+    private void createBoard(long seed) {
+        // Creating Random with seed
+        if(seed < 0) {
+            this.seed = System.nanoTime();
+        } else {
+            this.seed = seed;
+        }
+        Random random = new Random(this.seed);
         // LEFT BOARD
         // Internal variables for the num of each squares and offsets
         int trees = 3;
@@ -153,8 +166,8 @@ public class Board {
         
         // For each square's variable, add a house in an empty space
         for(int i = 0; i < trees; i++) {
-            int x = FastMath.nextRandomInt(0, 5) + 1;
-            int z = FastMath.nextRandomInt(0, 6);
+            int x = random.nextInt(5) + 2;
+            int z = random.nextInt(6) + 1;
             if(squares[x][z] == null) {
                 Square square = new Tree(x, offsetX, z, offsetZ, assetManager.loadModel("Models/T_" + Tree.NAME + ".j3o"));
                 treeNode.attachChild(square.getSquareNode());
@@ -164,8 +177,8 @@ public class Board {
             }
         }
         for(int i = 0; i < rocks; i++) {
-            int x = FastMath.nextRandomInt(0, 5) + 1;
-            int z = FastMath.nextRandomInt(0, 6);
+            int x = random.nextInt(5) + 2;
+            int z = random.nextInt(6) + 1;
             if(squares[x][z] == null) {
                 Square square = new Rock(x, offsetX, z, offsetZ, assetManager.loadModel("Models/T_" + Rock.NAME + ".j3o"));
                 rockNode.attachChild(square.getSquareNode());
@@ -175,8 +188,8 @@ public class Board {
             }
         }
         for(int i = 0; i < holes; i++) {
-            int x = FastMath.nextRandomInt(0, 5) + 1;
-            int z = FastMath.nextRandomInt(0, 6);
+            int x = random.nextInt(5) + 2;
+            int z = random.nextInt(6) + 1;
             if(squares[x][z] == null) {
                 Square square = new Hole(x, offsetX, z, offsetZ, assetManager.loadModel("Models/T_" + Hole.NAME + ".j3o"));
                 holeNode.attachChild(square.getSquareNode());
@@ -188,8 +201,8 @@ public class Board {
         
         // This one has more lines because of the water
         for(int i = 0; i < lakes; i++) {
-            int x = FastMath.nextRandomInt(0, 5) + 1;
-            int z = FastMath.nextRandomInt(0, 6);
+            int x = random.nextInt(5) + 2;
+            int z = random.nextInt(6) + 1;
             if(squares[x][z] == null) {
                 Square square = new Lake(x, offsetX, z, offsetZ, assetManager.loadModel("Models/T_" + Lake.NAME + ".j3o"));
                 Spatial flatWater = water.createWaterGeometry(2, 2);
@@ -223,8 +236,8 @@ public class Board {
         int offsetZ2 = -6;
         
         for(int i = 0; i < trees2; i++) {
-            int x = FastMath.nextRandomInt(0, 5);
-            int z = FastMath.nextRandomInt(0, 6);
+            int x = random.nextInt(5) + 2;
+            int z = random.nextInt(6) + 1;
             if(squares2[x][z] == null) {
                 Square square = new Tree(x, offsetX2, z, offsetZ2, assetManager.loadModel("Models/T_" + Tree.NAME + ".j3o"));
                 treeNode.attachChild(square.getSquareNode());
@@ -234,8 +247,8 @@ public class Board {
             }
         }
         for(int i = 0; i < rocks2; i++) {
-            int x = FastMath.nextRandomInt(0, 5);
-            int z = FastMath.nextRandomInt(0, 6);
+            int x = random.nextInt(5) + 2;
+            int z = random.nextInt(6) + 1;
             if(squares2[x][z] == null) {
                 Square square = new Rock(x, offsetX2, z, offsetZ2, assetManager.loadModel("Models/T_" + Rock.NAME + ".j3o"));
                 rockNode.attachChild(square.getSquareNode());
@@ -245,8 +258,8 @@ public class Board {
             }
         }
         for(int i = 0; i < holes2; i++) {
-            int x = FastMath.nextRandomInt(0, 5);
-            int z = FastMath.nextRandomInt(0, 6);
+            int x = random.nextInt(5) + 2;
+            int z = random.nextInt(6) + 1;
             if(squares2[x][z] == null) {
                 Square square = new Hole(x, offsetX2, z, offsetZ2, assetManager.loadModel("Models/T_" + Hole.NAME + ".j3o"));
                 holeNode.attachChild(square.getSquareNode());
@@ -256,8 +269,8 @@ public class Board {
             }
         }
         for(int i = 0; i < lakes2; i++) {
-            int x = FastMath.nextRandomInt(0, 5);
-            int z = FastMath.nextRandomInt(0, 6);
+            int x = random.nextInt(5) + 2;
+            int z = random.nextInt(6) + 1;
             if(squares2[x][z] == null) {
                 Square square = new Lake(x, offsetX2, z, offsetZ2, assetManager.loadModel("Models/T_" + Lake.NAME + ".j3o"));
                 Spatial flatWater = water.createWaterGeometry(2, 2);
@@ -409,6 +422,12 @@ public class Board {
         return firstValid && secondValid;
     }
     
+    public long getMapSeed() {
+        // TODO: Return a final seed so people can't change this value.
+        //       It's only this way for debugging
+        return seed;
+    }
+    
     // Resets the board's variables in case the map isn't valid.
     private void resetBoard() {
         squaresNode.detachAllChildren();
@@ -427,8 +446,12 @@ public class Board {
     // Method issued by the main code to create a new board. Before, the code would simply create a new Board,
     // but it wasn't efficient. It also broken the water processor a lot xD
     public void newBoard() {
+        this.newBoard(-1);
+    }
+    
+    public void newBoard(long seed) {
         resetBoard();
-        createBoard();
+        createBoard(seed);
         // DEBUG : count++;
         while(!validateBoard()) {
             //System.out.println("Tabuleiro não válido. Tentativas:" + contagem);
