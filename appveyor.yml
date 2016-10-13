@@ -4,14 +4,15 @@ environment:
     matrix:
         - JAVA_HOME: C:\Program Files\Java\jdk1.7.0
         - JAVA_HOME: C:\Program Files\Java\jdk1.8.0
+        - M2_HOME: C:\maven\apache-maven-3.2.5
 install:
   - ps: |
       Add-Type -AssemblyName System.IO.Compression.FileSystem
       if (!(Test-Path -Path "C:\maven" )) {
         (new-object System.Net.WebClient).DownloadFile('http://www.us.apache.org/dist/maven/maven-3/3.2.5/binaries/apache-maven-3.2.5-bin.zip', 'C:\maven-bin.zip')
-        [System.IO.Compression.ZipFile]::ExtractToDirectory("C:\maven-bin.zip", "C:\Program Files (x86)\Apache\Maven")
+        [System.IO.Compression.ZipFile]::ExtractToDirectory("C:\maven-bin.zip", "C:\maven\")
       }
-  - cmd: SET PATH=C:\Program Files (x86)\Apache\Maven\apache-maven-3.2.5\bin;%JAVA_HOME%\bin;%PATH:C:\Ruby193\bin;=%
+  - cmd: SET PATH=%M2_HOME%\bin;%JAVA_HOME%\bin;%PATH:C:\Ruby193\bin;=%
   - cmd: SET MAVEN_OPTS=-XX:MaxPermSize=2g -Xmx4g
   - cmd: SET JAVA_OPTS=-XX:MaxPermSize=2g -Xmx4g
   - cmd: mvn --version
