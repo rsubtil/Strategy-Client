@@ -107,17 +107,19 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         if(nifty.getCurrentScreen().getScreenId().equals("hud")) {
             long widthPanels = Math.round(HEIGHT * 0.25);
             long widthSpace = Math.round((WIDTH * 0.9 - (3*widthPanels))/4);
-            
+
             // Resize panels according to screen resolution
             for(int i = 1; i <= 3; i++) {
                 //nifty.getCurrentScreen().findElementById("selection" + i).setWidth((int)widthPanels);
-                nifty.getCurrentScreen().findElementById("selection" + i).setConstraintWidth(new SizeValue((int)widthPanels, SizeValueType.Pixel));
+                //nifty.getCurrentScreen().findElementById("selection" + i).setConstraintWidth(new SizeValue((int)widthPanels, SizeValueType.Pixel));
+                //nifty.getCurrentScreen().findElementById("selection" + i).setConstraintWidth(new SizeValue(Math.round((float)widthPanels/WIDTH*100), SizeValueType.Percent));
+                nifty.getCurrentScreen().findElementById("selection" + i).setConstraintWidth(new SizeValue(100, SizeValueType.Percent));
+                System.out.println(nifty.getCurrentScreen().findElementById("selection" + i).getConstraintHeight());
             }
             
             for(int i = 1; i <= 4; i++) {
-                nifty.getCurrentScreen().findElementById("space" + i).setConstraintWidth(new SizeValue((int)widthSpace, SizeValueType.Pixel));
+                nifty.getCurrentScreen().findElementById("space" + i).setConstraintWidth(new SizeValue(Math.round((float)widthSpace/WIDTH*100), SizeValueType.Percent));
             }
-            nifty.getCurrentScreen().layoutLayers();
         }
     }
     

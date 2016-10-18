@@ -119,14 +119,14 @@
                 <panel id="left_arrow" childLayout="center" width="5%" height="100%" backgroundColor="#000a">
                     <image width="64" height="64" filename="Interface/arrow_left.png" />
                 </panel>
-                <panel id="units_selector" childLayout="horizontal" width="90%" height="100%" backgroundColor="#000a">
-                    <panel id="space1" childLayour="center" width="54" height="100%"/>
-                    <panel id="selection1" childLayour="center" width="120" height="100%" style="nifty-panel-simple"/>
-                    <panel id="space2" childLayour="center" width="54" height="100%"/>
-                    <panel id="selection2" childLayour="center" width="120" height="100%" style="nifty-panel-simple"/>
-                    <panel id="space3" childLayour="center" width="54" height="100%"/>
-                    <panel id="selection3" childLayour="center" width="120" height="100%" style="nifty-panel-simple"/>
-                    <panel id="space4" childLayour="center" width="54" height="100%"/>
+                <panel id="units_selector" childLayout="horizontal" height="100%" backgroundColor="#000a">
+                    <panel id="space1" childLayour="center" height="100%"/>
+                    <panel id="selection1" childLayour="center" height="100%" style="nifty-panel-simple"/>
+                    <panel id="space2" childLayour="center" height="100%"/>
+                    <panel id="selection2" childLayour="center" height="100%" style="nifty-panel-simple"/>
+                    <panel id="space3" childLayour="center" height="100%"/>
+                    <panel id="selection3" childLayour="center" height="100%" style="nifty-panel-simple"/>
+                    <panel id="space4" childLayour="center" height="100%"/>
                 </panel>
                 <panel id="right_arrow" childLayout="center" width="5%" height="100%" backgroundColor="#000a">
                     <image width="64" height="64" filename="Interface/arrow_right.png" />
