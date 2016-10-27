@@ -16,13 +16,19 @@ import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
+import com.jme3.texture.FrameBuffer;
 import controls.SkyControl;
+import interfaces.ScreenResize;
+import java.util.ArrayList;
 import units.Cannon;
 import units.Mortar;
 import units.Sniper;
@@ -58,6 +64,9 @@ public class GameplayAppState extends AbstractAppState {
     
     // GUI
     private MenuAppState menuAppState;
+    
+    // Interfaces
+    private final ArrayList<ScreenResize> screenInterfaces = new ArrayList<ScreenResize>();
     
     // Debug
     private Node mortarN;
@@ -134,6 +143,39 @@ public class GameplayAppState extends AbstractAppState {
         menuAppState = new MenuAppState(networkAppState, WIDTH, HEIGHT);
         stateManager.attach(menuAppState);
         
+        // Adds SceneProcessor to iterate through screenResize objects
+        viewPort.addProcessor(new SceneProcessor() {
+
+            public void reshape(ViewPort vp, int i, int i1) {
+                System.out.println(i + "\t" + i1);
+                for(ScreenResize object : screenInterfaces) {
+                    object.onScreenResize(i, i1);
+                }
+            }
+            
+            public void initialize(RenderManager rm, ViewPort vp) {
+            }
+
+            public boolean isInitialized() {
+                return true;
+            }
+
+            public void preFrame(float f) {
+            }
+
+            public void postQueue(RenderQueue rq) {
+            }
+
+            public void postFrame(FrameBuffer fb) {
+            }
+
+            public void cleanup() {
+            }
+        });
+        
+        // Adds a ScreenResize to the list
+        this.addScreenResize(screenResize);
+        
         // Continues to initialize
         super.initialize(stateManager, app);
         
@@ -203,7 +245,19 @@ public class GameplayAppState extends AbstractAppState {
         }
     };
     
+    private final ScreenResize screenResize = new ScreenResize() {
+        public void onScreenResize(int width, int height) {
+            cam.resize(width, height, true);
+        }
+    };
     
+    public void addScreenResize(ScreenResize object) {
+        screenInterfaces.add(object);
+    }
+    
+    public void removeScreenResize(ScreenResize object) {
+        screenInterfaces.remove(object);
+    }
     
     public void wireframe(Spatial spatial, boolean wire) {
         if(spatial instanceof Node) {

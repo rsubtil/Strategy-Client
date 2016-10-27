@@ -101,7 +101,7 @@
         </layer>
     </screen>
     <screen id="hud" controller="appstates.MenuAppState">
-        <layer id="GLayer5" childLayout="vertical">
+        <layer id="gui" childLayout="vertical">
             <panel id="stats" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="10%"/>
             <panel id="window" childLayout="horizontal" width="100%" height="55%"/>
             <panel id="tabs" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="10%">

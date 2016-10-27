@@ -7,6 +7,7 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.InputManager;
+import com.jme3.math.FastMath;
 import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.renderer.ViewPort;
 import de.lessvoid.nifty.Nifty;
@@ -17,6 +18,7 @@ import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
 import de.lessvoid.nifty.tools.SizeValue;
 import de.lessvoid.nifty.tools.SizeValueType;
+import interfaces.ScreenResize;
 
 public class MenuAppState extends AbstractAppState implements ScreenController {
     
@@ -66,7 +68,8 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         //this.nifty.fromXml("Interface/gui.xml", "start");
         inputManager.setCursorVisible(true);
         this.app.getFlyByCamera().setEnabled(true);
-        //this.loginPopup = this.nifty.createPopup("login");
+        
+        // DEBUG: Validates the XML file
         try {
             nifty.validateXml("Interface/gui.xml");
         } catch(Exception e) {
@@ -79,6 +82,9 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         // Enalbes the mouse and disable's the flyCam
         //inputManager.setCursorVisible(true);
         //this.app.getFlyByCamera().setEnabled(false);
+        
+        // Adds the ScreenResize to the GameplayAppState's list
+        stateManager.getState(GameplayAppState.class).addScreenResize(screenResize);    
         
         // Continues to initialize
         super.initialize(stateManager, app);
@@ -97,29 +103,46 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         }
     }
     
+    private final ScreenResize screenResize = new ScreenResize() {
+        public void onScreenResize(int width, int height) {
+            layoutResponsiveGUI(width, height);
+        }
+    };
+    
+    private void layoutResponsiveGUI(int width, int height) {
+        if(getCurrentScreen().equals("hud")) {
+            long widthPanels = Math.round(height * 0.25);
+            long widthSpace = Math.round((width * 0.9 - (3*widthPanels))/4);
+            
+            int numberPanels = (int)FastMath.floor(width / (float)widthPanels * 0.9f);
+            
+            final long heightSpace = widthPanels;
+            
+            // Resize panels according to screen resolution
+            for(int i = 1; i <= 3; i++) {
+                nifty.getCurrentScreen().findElementById("selection" + i).setConstraintWidth(new SizeValue(Math.round(widthPanels), SizeValueType.Pixel));
+                System.out.println("widthPanels: " + widthPanels);
+            }
+            
+            for(int i = 1; i <= 4; i++) {
+                nifty.getCurrentScreen().findElementById("space" + i).setConstraintWidth(new SizeValue(Math.round(widthSpace), SizeValueType.Pixel));
+                System.out.println("widthSpace: " + widthSpace);
+            }
+            System.out.println("numberPanels: " + numberPanels);
+        }
+    }
+    
     @Override
     public void bind(Nifty nifty, Screen screen) {
-        
+        if(getCurrentScreen().equals("hud")) {
+            layoutResponsiveGUI(WIDTH, HEIGHT);
+        }
     }
     
     @Override
     public void onStartScreen() {
         if(nifty.getCurrentScreen().getScreenId().equals("hud")) {
-            long widthPanels = Math.round(HEIGHT * 0.25);
-            long widthSpace = Math.round((WIDTH * 0.9 - (3*widthPanels))/4);
-
-            // Resize panels according to screen resolution
-            for(int i = 1; i <= 3; i++) {
-                //nifty.getCurrentScreen().findElementById("selection" + i).setWidth((int)widthPanels);
-                //nifty.getCurrentScreen().findElementById("selection" + i).setConstraintWidth(new SizeValue((int)widthPanels, SizeValueType.Pixel));
-                //nifty.getCurrentScreen().findElementById("selection" + i).setConstraintWidth(new SizeValue(Math.round((float)widthPanels/WIDTH*100), SizeValueType.Percent));
-                nifty.getCurrentScreen().findElementById("selection" + i).setConstraintWidth(new SizeValue(100, SizeValueType.Percent));
-                System.out.println(nifty.getCurrentScreen().findElementById("selection" + i).getConstraintHeight());
-            }
             
-            for(int i = 1; i <= 4; i++) {
-                nifty.getCurrentScreen().findElementById("space" + i).setConstraintWidth(new SizeValue(Math.round((float)widthSpace/WIDTH*100), SizeValueType.Percent));
-            }
         }
     }
     

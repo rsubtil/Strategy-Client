@@ -2,8 +2,12 @@ package main;
 
 import appstates.GameplayAppState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.system.AppSettings;
+import com.jme3.texture.FrameBuffer;
 
 public class Main extends SimpleApplication {
     
