@@ -1,0 +1,9 @@
+Material My Material : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {
+        DiffuseMap : Flip MagNearest Textures/Pr_BalaCanhao_UVMap.png
+     }
+    AdditionalRenderState {
+      FaceCull Back
+      DepthWrite On
+    }
+}

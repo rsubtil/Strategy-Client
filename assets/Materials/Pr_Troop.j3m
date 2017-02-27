@@ -1,0 +1,12 @@
+Material My Material : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {
+        DiffuseMap : Flip MagNearest Textures/Tr_Soldado.png
+     }
+    AdditionalRenderState {
+      FaceCull Back
+      DepthWrite On
+      DepthTest On
+      PointSprite Off
+        ColorWrite On
+    }
+}
