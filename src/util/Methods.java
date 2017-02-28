@@ -1,7 +1,6 @@
 package util;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.export.binary.BinaryExporter;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.ViewPort;
@@ -11,8 +10,9 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.Texture;
-import java.io.File;
-import java.io.IOException;
+import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.elements.Element;
+import de.lessvoid.nifty.screen.Screen;
 import java.util.ArrayList;
 import java.util.Iterator;
 

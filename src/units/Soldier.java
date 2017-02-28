@@ -38,14 +38,14 @@ public class Soldier extends Unit {
         animChannel = animControl.createChannel();
         
         // DEBUG: Create AttachmentNode
-        Node originNode = (Node)((Node)model).getChild("Model");
+        /*Node originNode = (Node)((Node)model).getChild("Model");
         SkeletonControl sc = originNode.getControl(SkeletonControl.class);
         Node attachmentNode = sc.getAttachmentsNode("Braco D");
         attachmentNode.setName("AttachmentNode");
         Node weaponNode = (Node)originNode.getChild("Weapon");
         weaponNode.removeFromParent();
         attachmentNode.attachChild(weaponNode);
-        originNode.attachChild(attachmentNode);
+        originNode.attachChild(attachmentNode);*/
     }
     
     // Methods

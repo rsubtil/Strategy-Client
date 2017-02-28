@@ -126,23 +126,11 @@ public class GameplayAppState extends AbstractAppState {
         inputManager.addMapping("BenchmarkBoard", new KeyTrigger(KeyInput.KEY_B));
         inputManager.addMapping("PauseMenu", new KeyTrigger(KeyInput.KEY_ESCAPE));
         inputManager.addMapping("MousePos", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
-        inputManager.addMapping("MoveGUIUp", new KeyTrigger(KeyInput.KEY_NUMPAD9));
-        inputManager.addMapping("MoveGUIDown", new KeyTrigger(KeyInput.KEY_NUMPAD3));
-        inputManager.addMapping("MoveGUILeft", new KeyTrigger(KeyInput.KEY_LEFT));
-        inputManager.addMapping("MoveGUIRight", new KeyTrigger(KeyInput.KEY_RIGHT));
-        inputManager.addMapping("RotGUILeftX", new KeyTrigger(KeyInput.KEY_NUMPAD2));
-        inputManager.addMapping("RotGUIRightX", new KeyTrigger(KeyInput.KEY_NUMPAD8));
-        inputManager.addMapping("RotGUILeftY", new KeyTrigger(KeyInput.KEY_NUMPAD6));
-        inputManager.addMapping("RotGUIRightY", new KeyTrigger(KeyInput.KEY_NUMPAD4));
-        inputManager.addMapping("GUIInfo", new KeyTrigger(KeyInput.KEY_P));
         
         inputManager.addListener(actionListener, "Wireframe", "Print Screen",
                 "Anim1", "Anim2", "Anim3", "EntrarServer", "CreateBoard1",
-                "Aerial Cam", "BenchmarkBoard", "Pause Menu", "MousePos",
-                "GUIInfo");
-        inputManager.addListener(analogListener, "CreateBoard8", "MoveGUIUp",
-                "MoveGUIDown", "MoveGUILeft", "MoveGUIRight", "RotGUILeftX",
-                "RotGUIRightX", "RotGUILeftY", "RotGUIRightY");
+                "Aerial Cam", "BenchmarkBoard", "Pause Menu");
+        inputManager.addListener(analogListener, "CreateBoard8");
         
         // Hides debug stats
         this.app.setDisplayStatView(false);
@@ -271,46 +259,6 @@ public class GameplayAppState extends AbstractAppState {
         public void onAnalog(String name, float intensidade, float tpf) {
             if(name.equals("CreateBoard8")) {
                 board.newBoard();
-            }
-            if(name.equals("MoveGUILeft")) {
-                for(Spatial s : app.getGuiNode().getChildren()) {
-                    s.move(-tpf * 25, 0, 0);
-                }
-            }
-            if(name.equals("MoveGUIRight")) {
-                for(Spatial s : app.getGuiNode().getChildren()) {
-                    s.move(tpf * 25, 0, 0);
-                }
-            }
-            if(name.equals("MoveGUIUp")) {
-                for(Spatial s : app.getGuiNode().getChildren()) {
-                    s.move(0, tpf * 25, 0);
-                }
-            }
-            if(name.equals("MoveGUIDown")) {
-                for(Spatial s : app.getGuiNode().getChildren()) {
-                    s.move(0, -tpf * 25, 0);
-                }
-            }
-            if(name.equals("RotGUILeftX")) {
-                for(Spatial s : app.getGuiNode().getChildren()) {
-                    s.rotate(FastMath.DEG_TO_RAD * tpf * 50, 0, 0);
-                }
-            }
-            if(name.equals("RotGUIRightX")) {
-                for(Spatial s : app.getGuiNode().getChildren()) {
-                    s.rotate(-FastMath.DEG_TO_RAD * tpf * 50, 0, 0);
-                }
-            }
-            if(name.equals("RotGUILeftY")) {
-                for(Spatial s : app.getGuiNode().getChildren()) {
-                    s.rotate(0, -FastMath.DEG_TO_RAD * tpf * 50, 0);
-                }
-            }
-            if(name.equals("RotGUIRightY")) {
-                for(Spatial s : app.getGuiNode().getChildren()) {
-                    s.rotate(0, FastMath.DEG_TO_RAD * tpf * 50, 0);
-                }
             }
         }
     };

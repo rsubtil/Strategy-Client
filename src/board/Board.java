@@ -28,6 +28,7 @@ import util.Methods;
  * methods, such as getSquare(), destroySquare(), createBoard(),
  * etc...
  */
+
 public class Board {
     
     // VARIABLES
