@@ -465,16 +465,20 @@ public class Board {
     
     public void benchmarkBoard() {
         count = 0;
+        long startMillis = System.currentTimeMillis();
         System.out.println("Benchmarking board algorithm...");
-        for(int i = 0; i < 250; i++) {
+        for(int i = 0; i < 5000; i++) {
             newBoard();
         }
+        long timeMillis = System.currentTimeMillis() - startMillis;
         System.out.println("Benchmark complete");
         System.out.println("------------------");
         System.out.println();
-        System.out.println("Number of boards          : 250");
-        System.out.println("Number attemps            : " + count);
-        System.out.println("Average attemps per board : " + (count / 250f) + "\n");
+        System.out.println("Number of boards                    : 5000");
+        System.out.println("Number attemps                      : " + count);
+        System.out.println("Average attemps per board           : " + (count / 5000f) + "\n");
+        System.out.println("Number of millis                    : " + timeMillis + "ms (" + timeMillis*0.001f + ")s");
+        System.out.println("Number of millis per board (average): " + timeMillis/(float)5000 + "ms (" + (timeMillis*0.001f)/(float)5000 + ")s");
         count = 0;
     }
 }

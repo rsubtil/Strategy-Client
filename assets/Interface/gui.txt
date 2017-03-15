@@ -71,7 +71,7 @@
             </panel>
         </layer>
     </screen>
-    <screen id="loginWait">
+    <screen id="loginWait" controller="appstates.MenuAppState">
         <layer id="background" childLayout="center" backgroundColor="#000a">
             <control name="label" id="waitLabel" text="Please wait..."/>
         </layer>
@@ -116,8 +116,13 @@
                 </panel>
             </panel>
             <panel id="units" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="15%">
-                <panel id="left_arrow" childLayout="center" width="5%" height="100%">
-                    <image width="64" height="64" filename="Interface/arrow_left.png" />
+                <panel id="left_arrow" childLayout="center" width="5%" height="100%" >
+                    <image id="left_arrow_icon" visibleToMouse="true" width="64" height="64" filename="Interface/arrow_left.png">
+                        <interact onClick="moveSelection(true)" />
+                        <effect>
+                            <onHover name="imageSize" maxSize="+10%" />
+                        </effect>
+                    </image>
                 </panel>
                 <panel id="units_selector" childLayout="center" height="100%">
                     <!--
@@ -130,8 +135,13 @@
                     <panel id="space4" childLayout="center" height="100%"/>
                     -->
                 </panel>
-                <panel id="right_arrow" childLayout="center" width="5%" height="100%">
-                    <image width="64" height="64" filename="Interface/arrow_right.png" />
+                <panel id="right_arrow" childLayout="center" width="5%" height="100%" >
+                    <image id="right_arrow_icon" visibleToMouse="true" width="64" height="64" filename="Interface/arrow_right.png">
+                        <interact onClick="moveSelection(false)" />
+                        <effect>
+                            <onHover name="imageSize" maxSize="+10%" />
+                        </effect>
+                    </image>
                 </panel>
             </panel>
         </layer>

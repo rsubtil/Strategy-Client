@@ -7,27 +7,23 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.InputManager;
-import com.jme3.light.Light;
-import com.jme3.light.LightList;
 import com.jme3.math.FastMath;
 import com.jme3.niftygui.NiftyJmeDisplay;
-import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
-import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Texture2D;
-import de.lessvoid.nifty.EndNotify;
 import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.builder.HoverEffectBuilder;
 import de.lessvoid.nifty.builder.ImageBuilder;
+import de.lessvoid.nifty.builder.PanelBuilder;
 import de.lessvoid.nifty.controls.Label;
 import de.lessvoid.nifty.controls.TextField;
-import de.lessvoid.nifty.controls.dynamic.PanelCreator;
 import de.lessvoid.nifty.elements.Element;
+import de.lessvoid.nifty.elements.render.ImageRenderer;
 import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
 import interfaces.ScreenResize;
 import java.util.ArrayList;
-import util.Methods;
+import java.util.Properties;
 
 public class MenuAppState extends AbstractAppState implements ScreenController {
     
@@ -50,12 +46,6 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     private Nifty nifty;
     private Node guiNode;
     
-    // Rendering 3D objects on guiNode
-    private Camera offCamera;
-    private ViewPort modelView;
-    private FrameBuffer offBuffer;
-    private Texture2D offTex;
-    
     // HUD constants
     private final int MIN_SPACE_SIZE = 32;
     private final int MAX_PANELS = 9;
@@ -64,6 +54,17 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     private boolean isLoginServerDown;
     private String errorMessage; // Used because I can't change Nifty text before it changes
     private boolean layedGUI = false;
+    private ArrayList<Element> selections;
+    private int currentIndex;
+    
+    private PanelBuilder selection;          
+    private PanelBuilder space;
+    private PanelBuilder unit;    
+    
+    private ImageBuilder separatorIcon;      
+    private ImageBuilder unitIcon;
+    
+    private HoverEffectBuilder sizeEffect;
     
     public MenuAppState(NetworkAppState networkAppState, int WIDTH, int HEIGHT) {
         this.networkAppState = networkAppState;
@@ -80,6 +81,33 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         this.audioRenderer = this.app.getAudioRenderer();
         this.guiViewPort = this.app.getGuiViewPort();
         this.guiNode = this.app.getGuiNode();
+        
+        // Starts important GUI builders before loading GUI
+        selection = new PanelBuilder();
+        selection.childLayoutHorizontal();
+        selection.width("100%");
+        
+        space = new PanelBuilder();
+        space.childLayoutCenter();
+        space.height("100%");
+        
+        unit = new PanelBuilder();
+        unit.childLayoutCenter();
+        unit.style("nifty-panel-simple");
+        unit.visibleToMouse(true);
+        
+        separatorIcon = new ImageBuilder();
+        separatorIcon.height("100%");
+        separatorIcon.filename("Interface/separator.png");
+        separatorIcon.set("filter", "true");
+        separatorIcon.width("32");
+        separatorIcon.imageMode("resize:16,0,16,15,15,2,15,2,16,0,16,15");
+        
+        sizeEffect = new HoverEffectBuilder("size");
+        sizeEffect.effectParameter("size", "1.05");
+        
+        unitIcon = new ImageBuilder();
+        unitIcon.set("filter", "true");
         
         // Starts and loads the GUI
         this.niftyJME = new NiftyJmeDisplay(assetManager, inputManager, audioRenderer, guiViewPort);
@@ -101,18 +129,8 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         //this.nifty.fromXml("Interface/gui.xml", "start", new MenuController());
         this.app.getGuiViewPort().addProcessor(niftyJME);
         
-        // Enalbes the mouse and disable's the flyCam
-        //inputManager.setCursorVisible(true);
-        //this.app.getFlyByCamera().setEnabled(false);
-        
         // Adds the ScreenResize to the GameplayAppState's list
         stateManager.getState(GameplayAppState.class).addScreenResize(screenResize);
-        
-        // Adds a light to guiNode so the selector's models are visible
-        LightList lightList = this.app.getRootNode().getWorldLightList();
-        for(Light light : lightList) {
-            guiNode.addLight(light);
-        }
         
         // Continues to initialize
         super.initialize(stateManager, app);
@@ -129,7 +147,6 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
             loginLabel.setText("Login failed for the following reason(s): "  + errorMessage);
             //loginLabel.getElement().getRenderer(TextRenderer.class).setText("Login failed for the following reason(s): "  + errorMessage);
         } else if(getCurrentScreen().equals("hud") && !layedGUI && nifty.getCurrentScreen().findElementById("units_selector").getChildrenCount() == 0) {
-            layedGUI = true;
             layoutResponsiveGUI(WIDTH, HEIGHT);
         }
     }
@@ -149,7 +166,7 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     };
     
     private void layoutResponsiveGUI(int width, int height) {
-        if(getCurrentScreen().equals("hud")) {
+        if(!layedGUI) {
             // Gets the true width and height for the panels.
             // Real width is equal to width minus the arrows's size (which is 10%)
             int guiWidth = Math.round(width * 0.9f);
@@ -157,8 +174,8 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
             // Real height is just the panel's size, 15%
             int guiHeight = Math.round(height * 0.15f);
             
-            // Gets width of the selection panels, which is just the guiHeight
-            int widthPanels = guiHeight;
+            // Gets width of the selection panels, which is 95% of the guiHeight
+            int widthPanels = (int)FastMath.floor(0.95f * guiHeight);
                           
             // Get the number of panels that fit in each section, ensuring every space has at least MIN_SPACE_SIZE pixels
             int numPanels = (int)FastMath.floor(guiWidth / widthPanels);
@@ -181,10 +198,12 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
                 }
             } 
             
-            int panelsForLastSelection = MAX_PANELS % numPanels;
+            int panelsForLastSelection = numPanels == 0 ? MAX_PANELS % 1 : MAX_PANELS % numPanels;
             
             int numSelections = (int)FastMath.ceil(MAX_PANELS / (float)numPanels);
             int numFilledSelections = panelsForLastSelection > 0 ? numSelections - 1 : numSelections;
+            
+            int lastSpaceSize = panelsForLastSelection > 0 ? Math.round((guiWidth - panelsForLastSelection * widthPanels) / (panelsForLastSelection + 1)) : 0;
             
             /*System.out.println("\n\n\n\n\n\n\n\n");
             System.out.println("guiWidth: " + guiWidth);
@@ -196,149 +215,106 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
             System.out.println("spaceSize: " + spaceSize);
             System.out.println("panelsForLastSelection: " + panelsForLastSelection);
             System.out.println("numSelections: " + numSelections);
-            System.out.println("numFilledSelections: " + numFilledSelections);*/
+            System.out.println("numFilledSelections: " + numFilledSelections);
+            System.out.println("lastSpaceSize: " + lastSpaceSize);*/
             
             Element panel = nifty.getCurrentScreen().findElementById("units_selector");
             
-            // Removes all children from the panel
-            /*for(Element element : panel.getChildren()) {
-                element.markForRemoval();
-                //nifty.removeElement(nifty.getCurrentScreen(), element);
-            }*/
+            selections = new ArrayList<Element>();
+            currentIndex = 0;
             
-            // DEBUG: Testing if Nifty is not removing children
-            //Methods.deepRemoveElement(panel);
-            
-            ArrayList<Element> selections = new ArrayList<Element>();
-            
-            PanelCreator selection = new PanelCreator();
-            selection.setChildLayout("horizontal");
-            selection.setWidth("100%");
-             
-            PanelCreator space = new PanelCreator();
-            space.setChildLayout("center");
-            space.setHeight("100%");
-            space.setWidth(spaceSize + "px");
-            
-            PanelCreator unit = new PanelCreator();
-            unit.setChildLayout("center");
-            unit.setHeight("100%");
-            unit.setWidth(widthPanels + "px");
-            unit.setStyle("nifty-panel-simple");
-            
-            ImageBuilder image = new ImageBuilder();
-            image.height("100%");
-            image.filename("Interface/separator.png");
-            image.set("filter", "true");
-            image.width("32");
-            image.imageMode("resize:16,0,16,15,15,2,15,2,16,0,16,15");
-            
-            ImageBuilder unitIcon = new ImageBuilder();
-            unitIcon.set("filter", "true");
+            space.width(spaceSize + "px");
+            unit.width(widthPanels + "px");
+            unit.height(widthPanels + "px");
             
             // DEBUG
             //guiNode.detachAllChildren();
             
             int absoluteSpaceID = 0;
+            // Starts by creating the filled selections
             for(int i = 0; i < numFilledSelections; i++) {
-                selection.setId("selection-" + i);
-                Element selectionElement = selection.create(nifty, nifty.getCurrentScreen(), panel);
+                selection.id("selection-" + i);
+                Element selectionElement = selection.build(nifty, nifty.getCurrentScreen(), panel);
                 for(int n = 0; n < numPanels; n++) {
                     absoluteSpaceID++;
                     // Creates a space
-                    space.setId("space-" + i + "-" + n + ":" + absoluteSpaceID);
-                    Element spaceElement = space.create(nifty, nifty.getCurrentScreen(), selectionElement);
+                    space.id("space-" + i + "-" + n + ":" + absoluteSpaceID);
+                    Element spaceElement = space.build(nifty, nifty.getCurrentScreen(), selectionElement);
                     
                     // Sets the image for the number of the panel and also it's size
-                    // (since all images have different sizes)
-                    switch(absoluteSpaceID) {
-                        case 1:
-                            unitIcon.filename("Interface/Icons/Units/Tr_Soldier.png");
-                            unitIcon.height(widthPanels + "px");
-                            unitIcon.width((int)(widthPanels * 228 / 475f) + "px");
-                            break;
-                        case 2:
-                            unitIcon.filename("Interface/Icons/Units/Tr_Cannon.png");
-                            unitIcon.height(widthPanels + "px");
-                            unitIcon.width((int)(widthPanels * 390 / 407f) + "px");
-                            break;
-                        case 3:
-                            unitIcon.filename("Interface/Icons/Units/Tr_Sniper.png");
-                            unitIcon.height(widthPanels + "px");
-                            unitIcon.width((int)(widthPanels * 166 / 487f) + "px");
-                            break;
-                        case 4:
-                            unitIcon.filename("Interface/Icons/Units/Tr_Mortar.png");
-                            unitIcon.height(widthPanels + "px");
-                            unitIcon.width((int)(widthPanels * 392 / 407f) + "px");
-                            break;
-                        case 5:
-                            unitIcon.filename("Interface/Icons/Units/Tr_Soldier.png");
-                            unitIcon.height(widthPanels + "px");
-                            unitIcon.width((int)(widthPanels * 228 / 475f) + "px");
-                            break;
-                        case 6:
-                            unitIcon.filename("Interface/Icons/Units/Tr_Soldier.png");
-                            unitIcon.height(widthPanels + "px");
-                            unitIcon.width((int)(widthPanels * 228 / 475f) + "px");
-                            break;
-                        case 7:
-                            unitIcon.filename("Interface/Icons/Units/Tr_Soldier.png");
-                            unitIcon.height(widthPanels + "px");
-                            unitIcon.width((int)(widthPanels * 228 / 475f) + "px");
-                            break;
-                        case 8:
-                            unitIcon.filename("Interface/Icons/Units/Tr_Soldier.png");
-                            unitIcon.height(widthPanels + "px");
-                            unitIcon.width((int)(widthPanels * 228 / 475f) + "px");
-                            break;
-                        case 9:
-                            unitIcon.filename("Interface/Icons/Units/Tr_Soldier.png");
-                            unitIcon.height(widthPanels + "px");
-                            unitIcon.width((int)(widthPanels * 228 / 475f) + "px");
-                            break;
-                        case 10:
-                            unitIcon.filename("Interface/Icons/Units/Tr_Soldier.png");
-                            unitIcon.height(widthPanels + "px");
-                            unitIcon.width((int)(widthPanels * 228 / 475f) + "px");
-                            break;
-                        default:
-                            
-                    }
+                    
+                    unitIcon.filename("Interface/Icons/Units/Icon_" + absoluteSpaceID + ".png");
+                    unitIcon.height(widthPanels + "px");
+                    unitIcon.width(widthPanels + "px");
                     
                     // Creates a panel
-                    unit.setId("panel-" + i + "-" + n + ":" + absoluteSpaceID);
-                    Element panelElement = unit.create(nifty, nifty.getCurrentScreen(), selectionElement);
+                    unit.id("panel-" + i + "-" + n + ":" + absoluteSpaceID);
+                    unit.onHoverEffect(sizeEffect);
+                    
+                    Element panelElement = unit.build(nifty, nifty.getCurrentScreen(), selectionElement);
                     
                     // Adds unit Icon to the panel
                     unitIcon.id(panelElement.getId() + "(image)");
                     unitIcon.build(nifty, nifty.getCurrentScreen(), panelElement);
                     
                     if(absoluteSpaceID == 5 || absoluteSpaceID == 8) {
-                        image.id(spaceElement.getId() + "(image)");
-                        image.build(nifty, nifty.getCurrentScreen(), spaceElement);
+                        separatorIcon.id(spaceElement.getId() + "(image)");
+                        separatorIcon.build(nifty, nifty.getCurrentScreen(), spaceElement);
                     }
                 }
                 
                 absoluteSpaceID++;
-                space.setId("space-" + i + "-" + numPanels + ":" + absoluteSpaceID);
-                Element lastSpaceElement = space.create(nifty, nifty.getCurrentScreen(), selectionElement);
+                space.id("space-" + i + "-" + numPanels + ":" + absoluteSpaceID);
+                Element lastSpaceElement = space.build(nifty, nifty.getCurrentScreen(), selectionElement);
                         
                 if(absoluteSpaceID == 5 || absoluteSpaceID == 8) {
-                    image.id(lastSpaceElement.getId() + "(image)");
-                    image.build(nifty, nifty.getCurrentScreen(), lastSpaceElement);
+                    separatorIcon.id(lastSpaceElement.getId() + "(image)");
+                    separatorIcon.build(nifty, nifty.getCurrentScreen(), lastSpaceElement);
+                }
+                selections.add(selectionElement);
+                currentIndex++;
+            }
+            
+            // In case there is an incomplete selection, create it
+            if(panelsForLastSelection > 0) {
+                selection.id("selection-" + currentIndex);
+                Element selectionElement = selection.build(nifty, nifty.getCurrentScreen(), panel);
+                for(int n = 0; n < panelsForLastSelection; n++) {
+                    absoluteSpaceID++;
+                    // Creates a space
+                    space.id("space-" + currentIndex + "-" + n + ":" + absoluteSpaceID);
+                    space.width(lastSpaceSize + "px");
+                    Element spaceElement = space.build(nifty, nifty.getCurrentScreen(), selectionElement);
+                    
+                    // Sets the image for the number of the panel and also it's size
+                    unitIcon.filename("Interface/Icons/Units/Icon_" + absoluteSpaceID + ".png");
+                    unitIcon.height(widthPanels + "px");
+                    unitIcon.width(widthPanels + "px");
+                    
+                    // Creates a panel
+                    unit.id("panel-" + currentIndex + "-" + n + ":" + absoluteSpaceID);
+                    unit.onHoverEffect(sizeEffect);
+                    
+                    Element panelElement = unit.build(nifty, nifty.getCurrentScreen(), selectionElement);
+                    
+                    // Adds unit Icon to the panel
+                    unitIcon.id(panelElement.getId() + "(image)");
+                    unitIcon.build(nifty, nifty.getCurrentScreen(), panelElement);
+                    
+                    if(absoluteSpaceID == 5 || absoluteSpaceID == 8) {
+                        separatorIcon.id(spaceElement.getId() + "(image)");
+                        separatorIcon.build(nifty, nifty.getCurrentScreen(), spaceElement);
+                    }
                 }
                 selections.add(selectionElement);
             }
             
             // Hides elements that technically souldn't be visible
-            for(Element element : selections) {
-                if(!element.getId().contains("selection-0")) {
-                    element.hide();
-                }
-            }
+            currentIndex = 0;
+            loadSelection(currentIndex);
+            manageArrows(currentIndex);
             
-            System.out.println("selections<>: " + selections);
+            layedGUI = true;
         }
     }
     
@@ -407,6 +383,65 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
             // Since Nifty only switches screen in another thread, I need to wait at least 1 frame for it to switch to loginFailed
             isLoginServerDown = true;
             this.errorMessage = "Login server isn't online! Check your internet connection or go to the forum and ask for help.";
+        }
+    }
+    
+    public void moveSelection(String isLeft) {
+        boolean isLeftBoolean = Boolean.parseBoolean(isLeft);
+        if(isLeftBoolean) {
+            // Move selection to the left
+            int index = currentIndex - 1;
+            if(index >= 0) {
+                loadSelection(index);
+                currentIndex = index;
+            }
+        } else {
+            // Move selection to the right
+            int index = currentIndex + 1;
+            if(index < selections.size()) {
+                loadSelection(index);
+                currentIndex = index;
+            }
+        }
+        manageArrows(currentIndex);
+    }
+    
+    private void loadSelection(int index) {
+        for(Element element : selections) {
+            if(element.getId().contains("selection-" + index)) {
+                element.show();
+            } else {
+                element.hide();
+            }
+        }
+    }
+    
+    private void manageArrows(int index) {
+        if(index == 0) {
+            // Deactivates left arrow
+            nifty.getCurrentScreen().findElementById("left_arrow").disable();
+            ImageRenderer imageRenderer = nifty.getCurrentScreen().findElementById("left_arrow_icon").getRenderer(ImageRenderer.class);
+            imageRenderer.getImage().dispose();
+            imageRenderer.setImage(nifty.createImage("Interface/arrow_left_dark.png", false));
+        } else {
+            // Activates left arrow
+            nifty.getCurrentScreen().findElementById("left_arrow").enable();
+            ImageRenderer imageRenderer = nifty.getCurrentScreen().findElementById("left_arrow_icon").getRenderer(ImageRenderer.class);
+            imageRenderer.getImage().dispose();
+            imageRenderer.setImage(nifty.createImage("Interface/arrow_left.png", false));
+        }
+        if (index == selections.size() - 1) {
+            // Deactivate right arrow
+            nifty.getCurrentScreen().findElementById("right_arrow").disable();
+            ImageRenderer imageRenderer = nifty.getCurrentScreen().findElementById("right_arrow_icon").getRenderer(ImageRenderer.class);
+            imageRenderer.getImage().dispose();
+            imageRenderer.setImage(nifty.createImage("Interface/arrow_right_dark.png", false));
+        } else {
+            // Activates right arrow
+            nifty.getCurrentScreen().findElementById("right_arrow").enable();
+            ImageRenderer imageRenderer = nifty.getCurrentScreen().findElementById("right_arrow_icon").getRenderer(ImageRenderer.class);
+            imageRenderer.getImage().dispose();
+            imageRenderer.setImage(nifty.createImage("Interface/arrow_right.png", false));
         }
     }
     

@@ -10,9 +10,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.Texture;
-import de.lessvoid.nifty.Nifty;
-import de.lessvoid.nifty.elements.Element;
-import de.lessvoid.nifty.screen.Screen;
 import java.util.ArrayList;
 import java.util.Iterator;
 

@@ -16,7 +16,6 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
-import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
@@ -31,11 +30,15 @@ import com.jme3.system.AppSettings;
 import com.jme3.texture.FrameBuffer;
 import controls.SkyControl;
 import interfaces.ScreenResize;
+import java.awt.DisplayMode;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
 import units.Cannon;
 import units.Mortar;
 import units.Sniper;
 import units.Soldier;
+import util.Fields;
 
 public class GameplayAppState extends AbstractAppState {
     
@@ -49,8 +52,12 @@ public class GameplayAppState extends AbstractAppState {
     private Camera cam;
     private FlyByCamera flyCam;
     private InputManager inputManager;
-    public final int WIDTH;
-    public final int HEIGHT;
+    public int WIDTH;
+    public int HEIGHT;
+    private final AppSettings settings;
+    
+    // LWJGL
+    private GraphicsDevice device;
     
     // Sky
     private SkyControl skyControl;
@@ -76,11 +83,11 @@ public class GameplayAppState extends AbstractAppState {
     private Node mortarN;
     private boolean isAerialView = false;
     private Vector3f camOriginalPos;
-    private Quaternion camOriginalDir;
     
     public GameplayAppState(AppSettings settings) {
-        this.WIDTH = settings.getWidth();
-        this.HEIGHT = settings.getHeight();
+        this.settings = settings;
+        this.WIDTH = this.settings.getWidth();
+        this.HEIGHT = this.settings.getHeight();
     }
     
 @Override
@@ -113,7 +120,8 @@ public class GameplayAppState extends AbstractAppState {
         flyCam.setMoveSpeed(25);
         
         // Add inputs
-        inputManager.deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
+        // DEBUG: Activate for debug purposes.
+        //inputManager.deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
         
         inputManager.addMapping("Wireframe", new KeyTrigger(KeyInput.KEY_F));
         inputManager.addMapping("Print Screen", new KeyTrigger(KeyInput.KEY_O));
@@ -128,7 +136,7 @@ public class GameplayAppState extends AbstractAppState {
         inputManager.addMapping("MousePos", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         
         inputManager.addListener(actionListener, "Wireframe", "Print Screen",
-                "Anim1", "Anim2", "Anim3", "EntrarServer", "CreateBoard1",
+                "Anim1", "Anim2", "Anim3", "CreateBoard1",
                 "Aerial Cam", "BenchmarkBoard", "Pause Menu");
         inputManager.addListener(analogListener, "CreateBoard8");
         
@@ -156,6 +164,17 @@ public class GameplayAppState extends AbstractAppState {
         viewPort.addProcessor(new SceneProcessor() {
 
             public void reshape(ViewPort vp, int i, int i1) {
+                // Prevents divison by zero exceptions on GUI calculations due
+                // to too small resolution
+                if(i < Fields.MIN_WIDTH || i1 < Fields.MIN_HEIGHT) {
+                    AppSettings settings = new AppSettings(true);
+                    settings.setResolution(Fields.MIN_WIDTH, Fields.MIN_HEIGHT);
+                    settings.setResizable(true);
+                    i = Fields.MIN_WIDTH;
+                    i1 = Fields.MIN_HEIGHT;
+                    GameplayAppState.this.app.setSettings(settings);
+                    GameplayAppState.this.app.restart();
+                }
                 for(ScreenResize object : screenInterfaces) {
                     object.onScreenResize(i, i1);
                 }
@@ -229,11 +248,9 @@ public class GameplayAppState extends AbstractAppState {
                 if(isAerialView) {
                     isAerialView = false;
                     cam.setLocation(camOriginalPos);
-                    cam.setRotation(camOriginalDir);
                 } else {
                     isAerialView = true;
                     camOriginalPos = cam.getLocation().clone();
-                    camOriginalDir = cam.getRotation();
                     cam.setLocation(new Vector3f(0, 50, 0.1f));
                 }
             }
