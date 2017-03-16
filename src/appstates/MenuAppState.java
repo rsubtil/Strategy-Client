@@ -7,6 +7,7 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.InputManager;
+import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.math.FastMath;
 import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.renderer.ViewPort;
@@ -17,6 +18,7 @@ import de.lessvoid.nifty.builder.ImageBuilder;
 import de.lessvoid.nifty.builder.PanelBuilder;
 import de.lessvoid.nifty.controls.Label;
 import de.lessvoid.nifty.controls.TextField;
+import de.lessvoid.nifty.effects.EffectEventId;
 import de.lessvoid.nifty.elements.Element;
 import de.lessvoid.nifty.elements.render.ImageRenderer;
 import de.lessvoid.nifty.screen.Screen;
@@ -47,8 +49,9 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     private Node guiNode;
     
     // HUD constants
-    private final int MIN_SPACE_SIZE = 32;
+    private final int MIN_SPACE_SIZE = 32; // Pixels
     private final int MAX_PANELS = 9;
+    private final int MOUSE_IDLE_TIME = 10; // Seconds
     
     // GUI variables
     private boolean isLoginServerDown;
@@ -56,6 +59,8 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     private boolean layedGUI = false;
     private ArrayList<Element> selections;
     private int currentIndex;
+    private float mouseDelay = 0;
+    private boolean guiHidden = false;
     
     private PanelBuilder selection;          
     private PanelBuilder space;
@@ -132,6 +137,7 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         // Adds the ScreenResize to the GameplayAppState's list
         stateManager.getState(GameplayAppState.class).addScreenResize(screenResize);
         
+        
         // Continues to initialize
         super.initialize(stateManager, app);
     }
@@ -149,6 +155,17 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         } else if(getCurrentScreen().equals("hud") && !layedGUI && nifty.getCurrentScreen().findElementById("units_selector").getChildrenCount() == 0) {
             layoutResponsiveGUI(WIDTH, HEIGHT);
         }
+        updateTimers(tpf);
+        if(mouseDelay >= MOUSE_IDLE_TIME && !guiHidden) {
+            System.out.println("Element hidden");
+            Element element = nifty.getCurrentScreen().findElementById("elements");
+            element.startEffect(EffectEventId.onCustom);
+            guiHidden = true;
+        }
+    }
+    
+    private void updateTimers(float tpf) {
+        mouseDelay += tpf;
     }
     
     private final ScreenResize screenResize = new ScreenResize() {
@@ -443,6 +460,13 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
             imageRenderer.getImage().dispose();
             imageRenderer.setImage(nifty.createImage("Interface/arrow_right.png", false));
         }
+    }
+    
+    public void mouseMoved() {
+        mouseDelay = 0;
+        guiHidden = false;
+        Element element = nifty.getCurrentScreen().findElementById("elements");
+        element.resetSingleEffect(EffectEventId.onCustom);
     }
     
     public String getLoginError() {

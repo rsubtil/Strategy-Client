@@ -15,8 +15,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.input.controls.MouseButtonTrigger;
-import com.jme3.math.Quaternion;
+import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
@@ -30,9 +29,7 @@ import com.jme3.system.AppSettings;
 import com.jme3.texture.FrameBuffer;
 import controls.SkyControl;
 import interfaces.ScreenResize;
-import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
 import units.Cannon;
 import units.Mortar;
@@ -133,12 +130,15 @@ public class GameplayAppState extends AbstractAppState {
         inputManager.addMapping("Aerial Cam", new KeyTrigger(KeyInput.KEY_T));
         inputManager.addMapping("BenchmarkBoard", new KeyTrigger(KeyInput.KEY_B));
         inputManager.addMapping("PauseMenu", new KeyTrigger(KeyInput.KEY_ESCAPE));
-        inputManager.addMapping("MousePos", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        inputManager.addMapping("MouseMoved", new MouseAxisTrigger(MouseInput.AXIS_X, true),
+                                            new MouseAxisTrigger(MouseInput.AXIS_X, false),
+                                            new MouseAxisTrigger(MouseInput.AXIS_Y, true),
+                                            new MouseAxisTrigger(MouseInput.AXIS_Y, false));
         
         inputManager.addListener(actionListener, "Wireframe", "Print Screen",
                 "Anim1", "Anim2", "Anim3", "CreateBoard1",
                 "Aerial Cam", "BenchmarkBoard", "Pause Menu");
-        inputManager.addListener(analogListener, "CreateBoard8");
+        inputManager.addListener(analogListener, "CreateBoard8", "MouseMoved");
         
         // Hides debug stats
         this.app.setDisplayStatView(false);
@@ -276,6 +276,9 @@ public class GameplayAppState extends AbstractAppState {
         public void onAnalog(String name, float intensidade, float tpf) {
             if(name.equals("CreateBoard8")) {
                 board.newBoard();
+            }
+            if(name.equals("MouseMoved")) {
+                menuAppState.mouseMoved();
             }
         }
     };
