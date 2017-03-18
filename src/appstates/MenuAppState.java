@@ -7,7 +7,13 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.InputManager;
+import com.jme3.input.RawInputListener;
+import com.jme3.input.event.JoyAxisEvent;
+import com.jme3.input.event.JoyButtonEvent;
+import com.jme3.input.event.KeyInputEvent;
+import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
+import com.jme3.input.event.TouchEvent;
 import com.jme3.math.FastMath;
 import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.renderer.ViewPort;
@@ -19,13 +25,13 @@ import de.lessvoid.nifty.builder.PanelBuilder;
 import de.lessvoid.nifty.controls.Label;
 import de.lessvoid.nifty.controls.TextField;
 import de.lessvoid.nifty.effects.EffectEventId;
+import de.lessvoid.nifty.effects.impl.AutoScroll;
 import de.lessvoid.nifty.elements.Element;
 import de.lessvoid.nifty.elements.render.ImageRenderer;
 import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
 import interfaces.ScreenResize;
 import java.util.ArrayList;
-import java.util.Properties;
 
 public class MenuAppState extends AbstractAppState implements ScreenController {
     
@@ -51,7 +57,7 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     // HUD constants
     private final int MIN_SPACE_SIZE = 32; // Pixels
     private final int MAX_PANELS = 9;
-    private final int MOUSE_IDLE_TIME = 10; // Seconds
+    private final int MOUSE_IDLE_TIME = 9; // Seconds
     
     // GUI variables
     private boolean isLoginServerDown;
@@ -61,6 +67,8 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     private int currentIndex;
     private float mouseDelay = 0;
     private boolean guiHidden = false;
+    //DEBUG
+    private Label hideLabel;
     
     private PanelBuilder selection;          
     private PanelBuilder space;
@@ -122,21 +130,24 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         this.nifty.fromXml("Interface/gui.xml", "hud");
         //this.nifty.fromXml("Interface/gui.xml", "start");
         inputManager.setCursorVisible(true);
+        inputManager.addRawInputListener(rawInputListener);
         this.app.getFlyByCamera().setEnabled(true);
         
         // DEBUG: Validates the XML file
-        try {
+        /*try {
             nifty.validateXml("Interface/gui.xml");
         } catch(Exception e) {
             System.out.println("erro");
             e.printStackTrace();
-        }
+        }*/
         //this.nifty.fromXml("Interface/gui.xml", "start", new MenuController());
         this.app.getGuiViewPort().addProcessor(niftyJME);
         
         // Adds the ScreenResize to the GameplayAppState's list
         stateManager.getState(GameplayAppState.class).addScreenResize(screenResize);
         
+        // DEBUG: To show hiding value
+        hideLabel = nifty.getCurrentScreen().findNiftyControl("stats", Label.class);
         
         // Continues to initialize
         super.initialize(stateManager, app);
@@ -156,16 +167,23 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
             layoutResponsiveGUI(WIDTH, HEIGHT);
         }
         updateTimers(tpf);
+        if(!guiHidden) {
+            hideLabel.setText("DEBUG: GUI will hide in " + String.format(java.util.Locale.US, "%.2f", MOUSE_IDLE_TIME - mouseDelay) + "s. (Don't move mouse or it will reset)");
+        }
         if(mouseDelay >= MOUSE_IDLE_TIME && !guiHidden) {
-            System.out.println("Element hidden");
-            Element element = nifty.getCurrentScreen().findElementById("elements");
-            element.startEffect(EffectEventId.onCustom);
+            inputManager.setCursorVisible(false);
+            hideLabel.setText("See ya");
+            nifty.getCurrentScreen().findElementById("stats").
+                    startEffect(EffectEventId.onCustom);
+            nifty.getCurrentScreen().findElementById("selectables").
+                    startEffect(EffectEventId.onCustom);
             guiHidden = true;
         }
     }
     
     private void updateTimers(float tpf) {
         mouseDelay += tpf;
+        
     }
     
     private final ScreenResize screenResize = new ScreenResize() {
@@ -331,6 +349,17 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
             loadSelection(currentIndex);
             manageArrows(currentIndex);
             
+            // Gets values for autoScroll effects
+            nifty.getCurrentScreen().findElementById("stats").
+                    getEffects(EffectEventId.onCustom, AutoScroll.class).
+                    get(0).getParameters().setProperty
+                    ("end", String.valueOf(Math.round(-height * 0.1f)));
+            
+            nifty.getCurrentScreen().findElementById("selectables").
+                    getEffects(EffectEventId.onCustom, AutoScroll.class).
+                    get(0).getParameters().setProperty
+                    ("end", String.valueOf(Math.round(height * 0.25)));
+            
             layedGUI = true;
         }
     }
@@ -465,8 +494,15 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     public void mouseMoved() {
         mouseDelay = 0;
         guiHidden = false;
-        Element element = nifty.getCurrentScreen().findElementById("elements");
-        element.resetSingleEffect(EffectEventId.onCustom);
+        //try {
+            nifty.getCurrentScreen().findElementById("stats").
+                    resetSingleEffect(EffectEventId.onCustom);
+            nifty.getCurrentScreen().findElementById("selectables").
+                    resetSingleEffect(EffectEventId.onCustom);
+            inputManager.setCursorVisible(true);
+        //} catch(NullPointerException npe) {
+            // Nifty didn't finish initializing GUI
+        //}
     }
     
     public String getLoginError() {
@@ -476,6 +512,35 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     public String getCurrentScreen() {
         return nifty.getCurrentScreen().getScreenId();
     }
+    
+    private final RawInputListener rawInputListener = new RawInputListener() {
+        @Override
+        public void beginInput() {}
+
+        @Override
+        public void endInput() {}
+
+        @Override
+        public void onJoyAxisEvent(JoyAxisEvent jae) {}
+        @Override
+        public void onJoyButtonEvent(JoyButtonEvent jbe) {}
+
+        @Override
+        public void onMouseMotionEvent(MouseMotionEvent mme) {
+            mouseMoved();
+        }
+
+        @Override
+        public void onMouseButtonEvent(MouseButtonEvent mbe) {
+            mouseMoved();
+        }
+
+        @Override
+        public void onKeyEvent(KeyInputEvent kie) {}
+
+        @Override
+        public void onTouchEvent(TouchEvent te) {}
+    };
     
     @Override
     public void cleanup() {

@@ -11,11 +11,9 @@ import com.jme3.asset.AssetManager;
 import com.jme3.input.FlyByCamera;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
-import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
@@ -29,7 +27,6 @@ import com.jme3.system.AppSettings;
 import com.jme3.texture.FrameBuffer;
 import controls.SkyControl;
 import interfaces.ScreenResize;
-import java.awt.GraphicsDevice;
 import java.util.ArrayList;
 import units.Cannon;
 import units.Mortar;
@@ -52,9 +49,6 @@ public class GameplayAppState extends AbstractAppState {
     public int WIDTH;
     public int HEIGHT;
     private final AppSettings settings;
-    
-    // LWJGL
-    private GraphicsDevice device;
     
     // Sky
     private SkyControl skyControl;
@@ -130,10 +124,10 @@ public class GameplayAppState extends AbstractAppState {
         inputManager.addMapping("Aerial Cam", new KeyTrigger(KeyInput.KEY_T));
         inputManager.addMapping("BenchmarkBoard", new KeyTrigger(KeyInput.KEY_B));
         inputManager.addMapping("PauseMenu", new KeyTrigger(KeyInput.KEY_ESCAPE));
-        inputManager.addMapping("MouseMoved", new MouseAxisTrigger(MouseInput.AXIS_X, true),
+        /*inputManager.addMapping("MouseMoved", new MouseAxisTrigger(MouseInput.AXIS_X, true),
                                             new MouseAxisTrigger(MouseInput.AXIS_X, false),
                                             new MouseAxisTrigger(MouseInput.AXIS_Y, true),
-                                            new MouseAxisTrigger(MouseInput.AXIS_Y, false));
+                                            new MouseAxisTrigger(MouseInput.AXIS_Y, false));*/
         
         inputManager.addListener(actionListener, "Wireframe", "Print Screen",
                 "Anim1", "Anim2", "Anim3", "CreateBoard1",
@@ -282,6 +276,8 @@ public class GameplayAppState extends AbstractAppState {
             }
         }
     };
+    
+    
     
     private final ScreenResize screenResize = new ScreenResize() {
         public void onScreenResize(int width, int height) {

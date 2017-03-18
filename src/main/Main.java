@@ -12,7 +12,7 @@ public class Main extends SimpleApplication {
         AppSettings defs = new AppSettings(true);
         defs.setResizable(true);
         app.setSettings(defs);
-        app.setShowSettings(false);
+        app.setShowSettings(true);
         app.start();
     }
 

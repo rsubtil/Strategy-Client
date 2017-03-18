@@ -103,10 +103,17 @@
     </screen>
     <screen id="hud" controller="appstates.MenuAppState">
         <layer id="gui" childLayout="vertical">
-            <panel id="elements" visibleToMouse="true" childLayout="vertical" width="100%" height="100%">
-                <panel id="stats" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="10%"/>
-                <panel id="window" childLayout="horizontal" width="100%" height="65%"/>
-                <panel id="tabs" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="10%">
+            <panel id="stats" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="10%">
+                <!-- DEBUG -->
+                <control name="label" id="hideLabel" text="You're not supposed to read this" align="center" width="100%" height="100%" />
+                <effect>
+                    <onCustom name="fade" length="800" start="#ff" end="#00" neverStopRendering="true" />
+                    <onCustom name="autoScroll" length="800" start="0" end="-48" neverStopRendering="true" />
+                </effect>
+            </panel>
+            <panel id="window" childLayout="horizontal" width="100%" height="65%"/>
+            <panel id="selectables" childLayout="vertical" backgroundImage="Interface/border.png" width="100%" height="25%">
+                <panel id="tabs" childLayout="horizontal" width="100%" height="40%">
                     <panel id="tab_units" childLayout="center" width="33%" height="100%">
                         <control name="button" id="units_button" label="Units" align="center"/>
                     </panel>
@@ -117,7 +124,7 @@
                         <control name="button" id="powerups_button" label="Power-ups" align="center"/>
                     </panel>
                 </panel>
-                <panel id="units" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="15%">
+                <panel id="units" childLayout="horizontal" width="100%" height="60%">
                     <panel id="left_arrow" childLayout="center" width="5%" height="100%" >
                         <image id="left_arrow_icon" visibleToMouse="true" width="64" height="64" filename="Interface/arrow_left.png">
                             <interact onClick="moveSelection(true)" />
@@ -126,17 +133,7 @@
                             </effect>
                         </image>
                     </panel>
-                    <panel id="units_selector" childLayout="center" height="100%">
-                        <!--
-                        <panel id="space1" childLayout="center" height="100%"/>
-                        <panel id="selection1" childLayout="center" height="100%" style="nifty-panel-simple"/>
-                        <panel id="space2" childLayout="center" height="100%"/>
-                        <panel id="selection2" childLayout="center" height="100%" style="nifty-panel-simple"/>
-                        <panel id="space3" childLayout="center" height="100%"/>
-                        <panel id="selection3" childLayout="center" height="100%" style="nifty-panel-simple"/>
-                        <panel id="space4" childLayout="center" height="100%"/>
-                        -->
-                    </panel>
+                    <panel id="units_selector" childLayout="center" height="100%" />
                     <panel id="right_arrow" childLayout="center" width="5%" height="100%" >
                         <image id="right_arrow_icon" visibleToMouse="true" width="64" height="64" filename="Interface/arrow_right.png">
                             <interact onClick="moveSelection(false)" />
@@ -148,6 +145,7 @@
                 </panel>
                 <effect>
                     <onCustom name="fade" length="800" start="#ff" end="#00" neverStopRendering="true" />
+                    <onCustom name="autoScroll" length="800" start="0" end="-48" neverStopRendering="true" />
                 </effect>
             </panel>
         </layer>

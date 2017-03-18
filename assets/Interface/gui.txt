@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <nifty xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://nifty-gui.lessvoid.com/nifty-gui" xsi:schemaLocation="https://raw.githubusercontent.com/void256/nifty-gui/1.4/nifty-core/src/main/resources/nifty.xsd https://raw.githubusercontent.com/void256/nifty-gui/1.4/nifty-core/src/main/resources/nifty.xsd">
     <useControls filename="nifty-default-controls.xml"/>
+    <registerEffect name="size" class="effects.Size" />
     <useStyles filename="nifty-default-styles.xml"/>
     <screen id="start" controller="appstates.MenuAppState">
         <layer id="gui" childLayout="vertical" backgroundColor="#000a">
@@ -102,47 +103,48 @@
     </screen>
     <screen id="hud" controller="appstates.MenuAppState">
         <layer id="gui" childLayout="vertical">
-            <panel id="stats" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="10%"/>
-            <panel id="window" childLayout="horizontal" width="100%" height="65%"/>
-            <panel id="tabs" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="10%">
-                <panel id="tab_units" childLayout="center" width="33%" height="100%">
-                    <control name="button" id="units_button" label="Units" align="center"/>
-                </panel>
-                <panel id="tab_shields" childLayout="center" width="33%" height="100%">
-                    <control name="button" id="shields_button" label="Shields" align="center"/>
-                </panel>
-                <panel id="tab_powerups" childLayout="center" width="33%" height="100%">
-                    <control name="button" id="powerups_button" label="Power-ups" align="center"/>
-                </panel>
+            <panel id="stats" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="10%">
+                <effect>
+                    <onCustom name="fade" length="800" start="#ff" end="#00" neverStopRendering="true" />
+                    <onCustom name="autoScroll" length="800" start="0" end="-48" neverStopRendering="true" />
+                </effect>
             </panel>
-            <panel id="units" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="15%">
-                <panel id="left_arrow" childLayout="center" width="5%" height="100%" >
-                    <image id="left_arrow_icon" visibleToMouse="true" width="64" height="64" filename="Interface/arrow_left.png">
-                        <interact onClick="moveSelection(true)" />
-                        <effect>
-                            <onHover name="imageSize" maxSize="+10%" />
-                        </effect>
-                    </image>
+            <panel id="window" childLayout="horizontal" width="100%" height="65%"/>
+            <panel id="selectables" childLayout="vertical" backgroundImage="Interface/border.png" width="100%" height="25%">
+                <panel id="tabs" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="40%">
+                    <panel id="tab_units" childLayout="center" width="33%" height="100%">
+                        <control name="button" id="units_button" label="Units" align="center"/>
+                    </panel>
+                    <panel id="tab_shields" childLayout="center" width="33%" height="100%">
+                        <control name="button" id="shields_button" label="Shields" align="center"/>
+                    </panel>
+                    <panel id="tab_powerups" childLayout="center" width="33%" height="100%">
+                        <control name="button" id="powerups_button" label="Power-ups" align="center"/>
+                    </panel>
                 </panel>
-                <panel id="units_selector" childLayout="center" height="100%">
-                    <!--
-                    <panel id="space1" childLayout="center" height="100%"/>
-                    <panel id="selection1" childLayout="center" height="100%" style="nifty-panel-simple"/>
-                    <panel id="space2" childLayout="center" height="100%"/>
-                    <panel id="selection2" childLayout="center" height="100%" style="nifty-panel-simple"/>
-                    <panel id="space3" childLayout="center" height="100%"/>
-                    <panel id="selection3" childLayout="center" height="100%" style="nifty-panel-simple"/>
-                    <panel id="space4" childLayout="center" height="100%"/>
-                    -->
+                <panel id="units" childLayout="horizontal" backgroundImage="Interface/border.png" width="100%" height="60%">
+                    <panel id="left_arrow" childLayout="center" width="5%" height="100%" >
+                        <image id="left_arrow_icon" visibleToMouse="true" width="64" height="64" filename="Interface/arrow_left.png">
+                            <interact onClick="moveSelection(true)" />
+                            <effect>
+                                <onHover name="imageSize" maxSize="+10%" />
+                            </effect>
+                        </image>
+                    </panel>
+                    <panel id="units_selector" childLayout="center" height="100%" />
+                    <panel id="right_arrow" childLayout="center" width="5%" height="100%" >
+                        <image id="right_arrow_icon" visibleToMouse="true" width="64" height="64" filename="Interface/arrow_right.png">
+                            <interact onClick="moveSelection(false)" />
+                            <effect>
+                                <onHover name="imageSize" maxSize="+10%" />
+                            </effect>
+                        </image>
+                    </panel>
                 </panel>
-                <panel id="right_arrow" childLayout="center" width="5%" height="100%" >
-                    <image id="right_arrow_icon" visibleToMouse="true" width="64" height="64" filename="Interface/arrow_right.png">
-                        <interact onClick="moveSelection(false)" />
-                        <effect>
-                            <onHover name="imageSize" maxSize="+10%" />
-                        </effect>
-                    </image>
-                </panel>
+                <effect>
+                    <onCustom name="fade" length="800" start="#ff" end="#00" neverStopRendering="true" />
+                    <onCustom name="autoScroll" length="800" start="0" end="-48" neverStopRendering="true" />
+                </effect>
             </panel>
         </layer>
     </screen>
