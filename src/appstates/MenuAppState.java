@@ -240,7 +240,7 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
             
             int lastSpaceSize = panelsForLastSelection > 0 ? Math.round((guiWidth - panelsForLastSelection * widthPanels) / (panelsForLastSelection + 1)) : 0;
             
-            /*System.out.println("\n\n\n\n\n\n\n\n");
+            System.out.println("\n\n\n\n\n\n\n\n");
             System.out.println("guiWidth: " + guiWidth);
             System.out.println("guiHeight: " + guiHeight);
             System.out.println("widthPanels: " + widthPanels);
@@ -251,7 +251,7 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
             System.out.println("panelsForLastSelection: " + panelsForLastSelection);
             System.out.println("numSelections: " + numSelections);
             System.out.println("numFilledSelections: " + numFilledSelections);
-            System.out.println("lastSpaceSize: " + lastSpaceSize);*/
+            System.out.println("lastSpaceSize: " + lastSpaceSize);
             
             Element panel = nifty.getCurrentScreen().findElementById("units_selector");
             
@@ -298,8 +298,7 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
                     }
                 }
                 
-                absoluteSpaceID++;
-                space.id("space-" + i + "-" + numPanels + ":" + absoluteSpaceID);
+                space.id("space-" + i + "-" + numPanels + ":" + (absoluteSpaceID + 1));
                 Element lastSpaceElement = space.build(nifty, nifty.getCurrentScreen(), selectionElement);
                         
                 if(absoluteSpaceID == 5 || absoluteSpaceID == 8) {
