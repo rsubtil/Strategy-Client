@@ -277,7 +277,6 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
                     Element spaceElement = space.build(nifty, nifty.getCurrentScreen(), selectionElement);
                     
                     // Sets the image for the number of the panel and also it's size
-                    
                     unitIcon.filename("Interface/Icons/Units/Icon_" + absoluteSpaceID + ".png");
                     unitIcon.height(widthPanels + "px");
                     unitIcon.width(widthPanels + "px");
@@ -301,7 +300,7 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
                 space.id("space-" + i + "-" + numPanels + ":" + (absoluteSpaceID + 1));
                 Element lastSpaceElement = space.build(nifty, nifty.getCurrentScreen(), selectionElement);
                         
-                if(absoluteSpaceID == 5 || absoluteSpaceID == 8) {
+                if(absoluteSpaceID == 4 || absoluteSpaceID == 7) {
                     separatorIcon.id(lastSpaceElement.getId() + "(image)");
                     separatorIcon.build(nifty, nifty.getCurrentScreen(), lastSpaceElement);
                 }
