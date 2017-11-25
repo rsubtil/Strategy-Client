@@ -33,9 +33,10 @@ import de.lessvoid.nifty.elements.render.ImageRenderer;
 import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
 import de.lessvoid.nifty.tools.SizeValue;
+import gui.MenuItemActivatedEventSubscriber; 
 import interfaces.ScreenResize;
 import java.util.ArrayList;
-import org.bushe.swing.event.EventTopicSubscriber;
+import util.Fields;
 
 public class MenuAppState extends AbstractAppState implements ScreenController {
     
@@ -83,7 +84,8 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     
     private HoverEffectBuilder sizeEffect;
     
-    private Element popup;
+    private Element popupMenu;
+
     
     public MenuAppState(NetworkAppState networkAppState, int WIDTH, int HEIGHT) {
         this.networkAppState = networkAppState;
@@ -184,6 +186,7 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         if(!guiHidden) {
             hideLabel.setText("DEBUG: GUI will hide in " + String.format(java.util.Locale.US, "%.2f", MOUSE_IDLE_TIME - mouseDelay) + "s. (Don't move mouse or it will reset)");
         }
+        // Hides GUI if there's no mouse movement for a while
         if(mouseDelay >= MOUSE_IDLE_TIME && !guiHidden) {
             inputManager.setCursorVisible(false);
             hideLabel.setText("See ya");
@@ -191,6 +194,7 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
                     startEffect(EffectEventId.onCustom);
             nifty.getCurrentScreen().findElementById("selectables").
                     startEffect(EffectEventId.onCustom);
+            nifty.closePopup(popupMenu.getId());
             guiHidden = true;
         }
     }
@@ -208,6 +212,7 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
             for(Element child : element.getChildren()) {
                 child.markForRemoval();
             }
+            nifty.closePopup(popupMenu.getId());
             //layoutResponsiveGUI(width, height);
             WIDTH = width;
             HEIGHT = height;
@@ -298,6 +303,7 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
                     // Creates a panel
                     unit.id("panel-" + i + "-" + n + ":" + absoluteSpaceID);
                     unit.onHoverEffect(sizeEffect);
+                    unit.interactOnClick("unitClick(" + absoluteSpaceID + ")");
                     
                     Element panelElement = unit.build(nifty, nifty.getCurrentScreen(), selectionElement);
                     
@@ -341,6 +347,7 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
                     // Creates a panel
                     unit.id("panel-" + currentIndex + "-" + n + ":" + absoluteSpaceID);
                     unit.onHoverEffect(sizeEffect);
+                    unit.interactOnClick("unitClick(" + absoluteSpaceID + ")");
                     
                     Element panelElement = unit.build(nifty, nifty.getCurrentScreen(), selectionElement);
                     
@@ -378,7 +385,9 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     
     @Override
     public void bind(Nifty nifty, Screen screen) {
-        
+        if(screen.getScreenId().equals("hud")) {
+            createPopupMenu();
+        }
     }
     
     @Override
@@ -393,6 +402,19 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         if(getCurrentScreen().equals("hud")) {
             layedGUI = false;
         }
+    }
+    
+    private void createPopupMenu() {
+        this.popupMenu = nifty.createPopup("popupMenu");
+        
+        Menu<Integer> menu = popupMenu.findNiftyControl("#menu", Menu.class);
+        menu.setWidth(new SizeValue("150px"));
+        menu.addMenuItem("Buy", Fields.MENU_OPTIONS.BUY.getValue());
+        menu.addMenuItem("Info", Fields.MENU_OPTIONS.INFO.getValue());
+        menu.addMenuItemSeparator();
+        menu.addMenuItem("Exit", Fields.MENU_OPTIONS.BUY.EXIT.getValue());
+        
+        nifty.subscribe(nifty.getCurrentScreen(), menu.getId(), MenuItemActivatedEvent.class, new MenuItemActivatedEventSubscriber());
     }
     
     // Nifty's methods
@@ -523,6 +545,15 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     
     public String getCurrentScreen() {
         return nifty.getCurrentScreen().getScreenId();
+    }
+    
+    public void unitClick(String id) {
+        System.out.println("Unit [" + id + "] was clicked!");
+        nifty.showPopup(nifty.getCurrentScreen(), popupMenu.getId(), null);
+    }
+    
+    public void closeMenu() {
+        nifty.closePopup(popupMenu.getId());
     }
     
     private final RawInputListener rawInputListener = new RawInputListener() {
