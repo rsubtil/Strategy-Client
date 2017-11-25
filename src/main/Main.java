@@ -1,5 +1,6 @@
 package main;
 
+import appstates.EditorAppState;
 import appstates.GameplayAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.renderer.RenderManager;
@@ -11,6 +12,7 @@ public class Main extends SimpleApplication {
         Main app = new Main();
         AppSettings defs = new AppSettings(true);
         defs.setResizable(true);
+        defs.setFrameRate(60);
         app.setSettings(defs);
         app.setShowSettings(true);
         app.start();
@@ -18,8 +20,10 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        GameplayAppState gameplayAppState = new GameplayAppState(settings);
-        stateManager.attach(gameplayAppState);
+        //GameplayAppState gameplayAppState = new GameplayAppState(settings);
+        //stateManager.attach(gameplayAppState);
+        
+        stateManager.attach(new EditorAppState());
         
         // DEBUG
         setPauseOnLostFocus(false);

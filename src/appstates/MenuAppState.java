@@ -23,6 +23,8 @@ import de.lessvoid.nifty.builder.HoverEffectBuilder;
 import de.lessvoid.nifty.builder.ImageBuilder;
 import de.lessvoid.nifty.builder.PanelBuilder;
 import de.lessvoid.nifty.controls.Label;
+import de.lessvoid.nifty.controls.Menu;
+import de.lessvoid.nifty.controls.MenuItemActivatedEvent;
 import de.lessvoid.nifty.controls.TextField;
 import de.lessvoid.nifty.effects.EffectEventId;
 import de.lessvoid.nifty.effects.impl.AutoScroll;
@@ -30,8 +32,10 @@ import de.lessvoid.nifty.elements.Element;
 import de.lessvoid.nifty.elements.render.ImageRenderer;
 import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
+import de.lessvoid.nifty.tools.SizeValue;
 import interfaces.ScreenResize;
 import java.util.ArrayList;
+import org.bushe.swing.event.EventTopicSubscriber;
 
 public class MenuAppState extends AbstractAppState implements ScreenController {
     
@@ -79,6 +83,8 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
     
     private HoverEffectBuilder sizeEffect;
     
+    private Element popup;
+    
     public MenuAppState(NetworkAppState networkAppState, int WIDTH, int HEIGHT) {
         this.networkAppState = networkAppState;
         this.WIDTH = WIDTH;
@@ -121,6 +127,14 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         
         unitIcon = new ImageBuilder();
         unitIcon.set("filter", "true");
+        
+        /*popup = nifty.createPopup("POPUP");
+        Menu<MenuItem> menu = popup.findNiftyControl("#menu", Menu.class);
+        menu.setWidth(new SizeValue("100px"));
+        menu.addMenuItem("Click me!", "Interface/Icons/Info/InfoIcon1.png", new MenuItem("clickMe", "blah blah"));
+        nifty.subscribe(nifty.getCurrentScreen(), menu.getId(), MenuItemActivatedEvent.class, new MenuItemActivatedEventSubscriber());
+        nifty.showPopup(nifty.getCurrentScreen(), popup.getId(), null);
+        */
         
         // Starts and loads the GUI
         this.niftyJME = new NiftyJmeDisplay(assetManager, inputManager, audioRenderer, guiViewPort);
@@ -545,5 +559,25 @@ public class MenuAppState extends AbstractAppState implements ScreenController {
         app.stop();
         // Continues to clean up
         super.cleanup();
+    }
+}
+
+class MenuItem {
+    public String id;
+    public String name;
+    public MenuItem(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+}
+
+class MenuItemActivatedEventSubscriber implements EventTopicSubscriber<MenuItemActivatedEvent> {
+    
+    @Override
+    public void onEvent(final String id, final MenuItemActivatedEvent event) {
+        MenuItem item = (MenuItem)event.getItem();
+        if(item.id.equals("clickMe")) {
+            System.out.println("Oki doki!");
+        }
     }
 }

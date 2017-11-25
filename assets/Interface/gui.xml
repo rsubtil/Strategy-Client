@@ -150,4 +150,8 @@
             </panel>
         </layer>
     </screen>
+    <popup id="newUnitPopup" childLayout="absolute-inside" controller="appstates.MenuAppState" width="10%">
+        <interact onClick="closePopup()" />
+        <control id="unitMenu" name="#menu" />
+    </popup>
 </nifty>
